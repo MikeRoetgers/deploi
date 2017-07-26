@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package protobuf;
+
+service DeploiServer {
+  rpc RegisterNewBuild(NewBuildRequest) returns (StandardResponse) {}
+  rpc GetNextJob(NextJobRequest) returns (NextJobResponse) {}
+  rpc MarkJobDone(JobDoneRequest) returns (StandardResponse) {}
+  rpc GetProjects(StandardRequest) returns (GetProjectsResponse) {}
+  rpc GetBuilds(GetBuildsRequest) returns (GetBuildsResponse) {}
+}
+
+message GetProjectsResponse {
+  ResponseHeader header = 1;
+  repeated string projects = 2;
+}
+
+message GetBuildsRequest {
+  RequestHeader header = 1;
+  string projectName = 2;
+}
+
+message GetBuildsResponse {
+  ResponseHeader header = 1;
+  repeated Build builds = 2;
+}
+
+message NewBuildRequest {
+  RequestHeader header = 1;
+  Build build = 2;
+}
+
+message NextJobRequest {
+  RequestHeader header = 1;
+}
+
+message NextJobResponse {
+  ResponseHeader header = 1;
+}
+
+message JobDoneRequest {
+  RequestHeader header = 1;
+}
+
+message Build {
+  string projectName = 1;
+  string buildId = 2;
+  string buildURL = 3;
+  string buildSystemURL = 4;
+  string branchName = 5;
+  int64 createdAt = 6;
+}
+
+message Project {
+  string projectName = 1;
+  repeated Build builds = 2;
+}
+
+message StandardRequest {
+  RequestHeader header = 1;
+}
+
+message StandardResponse {
+  ResponseHeader header = 1;
+}
+
+message RequestHeader {
+  string token = 1;
+}
+
+message ResponseHeader {
+  bool success = 1;
+  repeated Error errors = 2;
+}
+
+message Error {
+  string code = 1;
+  string message = 2;
+}
