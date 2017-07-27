@@ -12,8 +12,9 @@ import (
 )
 
 var (
-	ProjectBucket = []byte("Projects")
-	log           = logging.MustGetLogger("app")
+	ProjectBucket     = []byte("Projects")
+	EnvironmentBucket = []byte("Environments")
+	log               = logging.MustGetLogger("app")
 )
 
 func main() {
@@ -24,9 +25,12 @@ func main() {
 	defer db.Close()
 
 	err = db.Update(func(tx *bolt.Tx) error {
-		_, txErr := tx.CreateBucketIfNotExists(ProjectBucket)
-		if txErr != nil {
-			return fmt.Errorf("create bucket: %s", err)
+		buckets := [][]byte{ProjectBucket, EnvironmentBucket}
+		for _, b := range buckets {
+			_, txErr := tx.CreateBucketIfNotExists(b)
+			if txErr != nil {
+				return fmt.Errorf("creating bucket failed: %s", err)
+			}
 		}
 		return nil
 	})

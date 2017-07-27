@@ -7,6 +7,7 @@ import (
 
 	"github.com/MikeRoetgers/deploi/protobuf"
 	"github.com/boltdb/bolt"
+	"github.com/golang/protobuf/proto"
 )
 
 type server struct {
@@ -90,6 +91,102 @@ func (s *server) GetBuilds(ctx context.Context, req *protobuf.GetBuildsRequest) 
 	if err != nil {
 		addInternalError(res.Header)
 		log.Errorf("Failed to load list of builds: %s", err)
+		return res, nil
+	}
+	return res, nil
+}
+
+func (s *server) DeployBuild(context.Context, *protobuf.DeployRequest) (*protobuf.DeployResponse, error) {
+
+	return nil, nil
+}
+
+func (s *server) AutomateDeployment(context.Context, *protobuf.AutomationRequest) (*protobuf.AutomationResponse, error) {
+	return nil, nil
+}
+
+func (s *server) RegisterEnvironment(ctx context.Context, req *protobuf.RegisterEnvironmentRequest) (*protobuf.StandardResponse, error) {
+	res := &protobuf.StandardResponse{
+		Header: &protobuf.ResponseHeader{
+			Success: true,
+		},
+	}
+	err := s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(EnvironmentBucket)
+		env := getEnvironment(b, req.Environment.Name)
+		env.Namespaces = append(env.Namespaces, req.Environment.Namespaces...)
+		if err := storeEnvironment(b, env); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		log.Errorf("Failed to register environment %s: %s", req.Environment.Name, err)
+		addInternalError(res.Header)
+		return res, nil
+	}
+	return res, nil
+}
+
+func (s *server) GetEnvironments(context.Context, *protobuf.StandardRequest) (*protobuf.GetEnvironmentResponse, error) {
+	res := &protobuf.GetEnvironmentResponse{
+		Header: &protobuf.ResponseHeader{
+			Success: true,
+		},
+		Environments: []*protobuf.Environment{},
+	}
+	err := s.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket(EnvironmentBucket)
+		b.ForEach(func(_ []byte, v []byte) error {
+			env := &protobuf.Environment{}
+			if err := proto.Unmarshal(v, env); err != nil {
+				return fmt.Errorf("Failed to unmarshal environment: %s", err)
+			}
+			res.Environments = append(res.Environments, env)
+			return nil
+		})
+		return nil
+	})
+	if err != nil {
+		log.Errorf("Failed to load environments: %s", err)
+		addInternalError(res.Header)
+		return res, nil
+	}
+	return res, nil
+}
+
+func (s *server) DeleteEnvironment(ctx context.Context, req *protobuf.DeleteEnvironmentRequest) (*protobuf.StandardResponse, error) {
+	res := &protobuf.StandardResponse{
+		Header: &protobuf.ResponseHeader{
+			Success: true,
+		},
+	}
+	err := s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(EnvironmentBucket)
+		if len(req.Environment.Namespaces) == 0 {
+			if err := b.Delete([]byte(req.Environment.Name)); err != nil {
+				return err
+			}
+			return nil
+		}
+		env := getEnvironment(b, req.Environment.Name)
+		toDelete := map[string]struct{}{}
+		for _, ns := range req.Environment.Namespaces {
+			toDelete[ns] = struct{}{}
+		}
+		for k, v := range env.Namespaces {
+			if _, ok := toDelete[v]; ok {
+				env.Namespaces = append(env.Namespaces[:k], env.Namespaces[k+1:]...)
+			}
+		}
+		if err := storeEnvironment(b, env); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		log.Errorf("Failed to delete environment or namespace: %s", err)
+		addInternalError(res.Header)
 		return res, nil
 	}
 	return res, nil

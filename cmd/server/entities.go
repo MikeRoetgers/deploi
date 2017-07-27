@@ -32,3 +32,28 @@ func storeProject(bucket *bolt.Bucket, project *protobuf.Project) error {
 	}
 	return nil
 }
+
+func getEnvironment(bucket *bolt.Bucket, name string) *protobuf.Environment {
+	val := bucket.Get([]byte(name))
+	env := &protobuf.Environment{}
+	if len(val) == 0 {
+		env.Name = name
+		return env
+	}
+	if err := proto.Unmarshal(val, env); err != nil {
+		log.Errorf("Failed to unmarshal environment %s. Entity was reset. Error: %s", name, err)
+		env.Name = name
+	}
+	return env
+}
+
+func storeEnvironment(bucket *bolt.Bucket, env *protobuf.Environment) error {
+	val, err := proto.Marshal(env)
+	if err != nil {
+		return fmt.Errorf("Failed to marshal environment: %s", err)
+	}
+	if err = bucket.Put([]byte(env.Name), val); err != nil {
+		return fmt.Errorf("Failed to store environment: %s", err)
+	}
+	return nil
+}

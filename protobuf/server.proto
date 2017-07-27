@@ -8,6 +8,49 @@ service DeploiServer {
   rpc MarkJobDone(JobDoneRequest) returns (StandardResponse) {}
   rpc GetProjects(StandardRequest) returns (GetProjectsResponse) {}
   rpc GetBuilds(GetBuildsRequest) returns (GetBuildsResponse) {}
+  rpc DeployBuild(DeployRequest) returns (DeployResponse) {}
+  rpc AutomateDeployment(AutomationRequest) returns (AutomationResponse) {}
+  rpc RegisterEnvironment(RegisterEnvironmentRequest) returns (StandardResponse) {}
+  rpc GetEnvironments(StandardRequest) returns (GetEnvironmentResponse) {}
+  rpc DeleteEnvironment(DeleteEnvironmentRequest) returns (StandardResponse) {}
+}
+
+message Environment {
+  string name = 1;
+  repeated string namespaces = 2;
+}
+
+message RegisterEnvironmentRequest {
+  RequestHeader header = 1;
+  Environment environment = 2;
+}
+
+message GetEnvironmentResponse {
+  ResponseHeader header = 1;
+  repeated Environment environments = 2;
+}
+
+message DeleteEnvironmentRequest {
+  RequestHeader header = 1;
+  Environment environment = 2;
+}
+
+message DeployRequest {
+  RequestHeader header = 1;
+  string project = 2;
+  string buildId = 3;
+}
+
+message DeployResponse {
+  ResponseHeader header = 1;
+}
+
+message AutomationRequest {
+  RequestHeader header = 1;
+}
+
+message AutomationResponse {
+  ResponseHeader header = 1;
 }
 
 message GetProjectsResponse {

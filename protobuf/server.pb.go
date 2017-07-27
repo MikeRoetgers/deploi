@@ -9,6 +9,14 @@ It is generated from these files:
 	server.proto
 
 It has these top-level messages:
+	Environment
+	RegisterEnvironmentRequest
+	GetEnvironmentResponse
+	DeleteEnvironmentRequest
+	DeployRequest
+	DeployResponse
+	AutomationRequest
+	AutomationResponse
 	GetProjectsResponse
 	GetBuildsRequest
 	GetBuildsResponse
@@ -46,6 +54,182 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+type Environment struct {
+	Name       string   `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	Namespaces []string `protobuf:"bytes,2,rep,name=namespaces" json:"namespaces,omitempty"`
+}
+
+func (m *Environment) Reset()                    { *m = Environment{} }
+func (m *Environment) String() string            { return proto.CompactTextString(m) }
+func (*Environment) ProtoMessage()               {}
+func (*Environment) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+
+func (m *Environment) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *Environment) GetNamespaces() []string {
+	if m != nil {
+		return m.Namespaces
+	}
+	return nil
+}
+
+type RegisterEnvironmentRequest struct {
+	Header      *RequestHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	Environment *Environment   `protobuf:"bytes,2,opt,name=environment" json:"environment,omitempty"`
+}
+
+func (m *RegisterEnvironmentRequest) Reset()                    { *m = RegisterEnvironmentRequest{} }
+func (m *RegisterEnvironmentRequest) String() string            { return proto.CompactTextString(m) }
+func (*RegisterEnvironmentRequest) ProtoMessage()               {}
+func (*RegisterEnvironmentRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+
+func (m *RegisterEnvironmentRequest) GetHeader() *RequestHeader {
+	if m != nil {
+		return m.Header
+	}
+	return nil
+}
+
+func (m *RegisterEnvironmentRequest) GetEnvironment() *Environment {
+	if m != nil {
+		return m.Environment
+	}
+	return nil
+}
+
+type GetEnvironmentResponse struct {
+	Header       *ResponseHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	Environments []*Environment  `protobuf:"bytes,2,rep,name=environments" json:"environments,omitempty"`
+}
+
+func (m *GetEnvironmentResponse) Reset()                    { *m = GetEnvironmentResponse{} }
+func (m *GetEnvironmentResponse) String() string            { return proto.CompactTextString(m) }
+func (*GetEnvironmentResponse) ProtoMessage()               {}
+func (*GetEnvironmentResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+
+func (m *GetEnvironmentResponse) GetHeader() *ResponseHeader {
+	if m != nil {
+		return m.Header
+	}
+	return nil
+}
+
+func (m *GetEnvironmentResponse) GetEnvironments() []*Environment {
+	if m != nil {
+		return m.Environments
+	}
+	return nil
+}
+
+type DeleteEnvironmentRequest struct {
+	Header      *RequestHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	Environment *Environment   `protobuf:"bytes,2,opt,name=environment" json:"environment,omitempty"`
+}
+
+func (m *DeleteEnvironmentRequest) Reset()                    { *m = DeleteEnvironmentRequest{} }
+func (m *DeleteEnvironmentRequest) String() string            { return proto.CompactTextString(m) }
+func (*DeleteEnvironmentRequest) ProtoMessage()               {}
+func (*DeleteEnvironmentRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+
+func (m *DeleteEnvironmentRequest) GetHeader() *RequestHeader {
+	if m != nil {
+		return m.Header
+	}
+	return nil
+}
+
+func (m *DeleteEnvironmentRequest) GetEnvironment() *Environment {
+	if m != nil {
+		return m.Environment
+	}
+	return nil
+}
+
+type DeployRequest struct {
+	Header  *RequestHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+	Project string         `protobuf:"bytes,2,opt,name=project" json:"project,omitempty"`
+	BuildId string         `protobuf:"bytes,3,opt,name=buildId" json:"buildId,omitempty"`
+}
+
+func (m *DeployRequest) Reset()                    { *m = DeployRequest{} }
+func (m *DeployRequest) String() string            { return proto.CompactTextString(m) }
+func (*DeployRequest) ProtoMessage()               {}
+func (*DeployRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+
+func (m *DeployRequest) GetHeader() *RequestHeader {
+	if m != nil {
+		return m.Header
+	}
+	return nil
+}
+
+func (m *DeployRequest) GetProject() string {
+	if m != nil {
+		return m.Project
+	}
+	return ""
+}
+
+func (m *DeployRequest) GetBuildId() string {
+	if m != nil {
+		return m.BuildId
+	}
+	return ""
+}
+
+type DeployResponse struct {
+	Header *ResponseHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+}
+
+func (m *DeployResponse) Reset()                    { *m = DeployResponse{} }
+func (m *DeployResponse) String() string            { return proto.CompactTextString(m) }
+func (*DeployResponse) ProtoMessage()               {}
+func (*DeployResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+
+func (m *DeployResponse) GetHeader() *ResponseHeader {
+	if m != nil {
+		return m.Header
+	}
+	return nil
+}
+
+type AutomationRequest struct {
+	Header *RequestHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+}
+
+func (m *AutomationRequest) Reset()                    { *m = AutomationRequest{} }
+func (m *AutomationRequest) String() string            { return proto.CompactTextString(m) }
+func (*AutomationRequest) ProtoMessage()               {}
+func (*AutomationRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
+
+func (m *AutomationRequest) GetHeader() *RequestHeader {
+	if m != nil {
+		return m.Header
+	}
+	return nil
+}
+
+type AutomationResponse struct {
+	Header *ResponseHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
+}
+
+func (m *AutomationResponse) Reset()                    { *m = AutomationResponse{} }
+func (m *AutomationResponse) String() string            { return proto.CompactTextString(m) }
+func (*AutomationResponse) ProtoMessage()               {}
+func (*AutomationResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
+
+func (m *AutomationResponse) GetHeader() *ResponseHeader {
+	if m != nil {
+		return m.Header
+	}
+	return nil
+}
+
 type GetProjectsResponse struct {
 	Header   *ResponseHeader `protobuf:"bytes,1,opt,name=header" json:"header,omitempty"`
 	Projects []string        `protobuf:"bytes,2,rep,name=projects" json:"projects,omitempty"`
@@ -54,7 +238,7 @@ type GetProjectsResponse struct {
 func (m *GetProjectsResponse) Reset()                    { *m = GetProjectsResponse{} }
 func (m *GetProjectsResponse) String() string            { return proto.CompactTextString(m) }
 func (*GetProjectsResponse) ProtoMessage()               {}
-func (*GetProjectsResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+func (*GetProjectsResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
 
 func (m *GetProjectsResponse) GetHeader() *ResponseHeader {
 	if m != nil {
@@ -78,7 +262,7 @@ type GetBuildsRequest struct {
 func (m *GetBuildsRequest) Reset()                    { *m = GetBuildsRequest{} }
 func (m *GetBuildsRequest) String() string            { return proto.CompactTextString(m) }
 func (*GetBuildsRequest) ProtoMessage()               {}
-func (*GetBuildsRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+func (*GetBuildsRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
 
 func (m *GetBuildsRequest) GetHeader() *RequestHeader {
 	if m != nil {
@@ -102,7 +286,7 @@ type GetBuildsResponse struct {
 func (m *GetBuildsResponse) Reset()                    { *m = GetBuildsResponse{} }
 func (m *GetBuildsResponse) String() string            { return proto.CompactTextString(m) }
 func (*GetBuildsResponse) ProtoMessage()               {}
-func (*GetBuildsResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+func (*GetBuildsResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
 
 func (m *GetBuildsResponse) GetHeader() *ResponseHeader {
 	if m != nil {
@@ -126,7 +310,7 @@ type NewBuildRequest struct {
 func (m *NewBuildRequest) Reset()                    { *m = NewBuildRequest{} }
 func (m *NewBuildRequest) String() string            { return proto.CompactTextString(m) }
 func (*NewBuildRequest) ProtoMessage()               {}
-func (*NewBuildRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+func (*NewBuildRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
 
 func (m *NewBuildRequest) GetHeader() *RequestHeader {
 	if m != nil {
@@ -149,7 +333,7 @@ type NextJobRequest struct {
 func (m *NextJobRequest) Reset()                    { *m = NextJobRequest{} }
 func (m *NextJobRequest) String() string            { return proto.CompactTextString(m) }
 func (*NextJobRequest) ProtoMessage()               {}
-func (*NextJobRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+func (*NextJobRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
 
 func (m *NextJobRequest) GetHeader() *RequestHeader {
 	if m != nil {
@@ -165,7 +349,7 @@ type NextJobResponse struct {
 func (m *NextJobResponse) Reset()                    { *m = NextJobResponse{} }
 func (m *NextJobResponse) String() string            { return proto.CompactTextString(m) }
 func (*NextJobResponse) ProtoMessage()               {}
-func (*NextJobResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+func (*NextJobResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
 
 func (m *NextJobResponse) GetHeader() *ResponseHeader {
 	if m != nil {
@@ -181,7 +365,7 @@ type JobDoneRequest struct {
 func (m *JobDoneRequest) Reset()                    { *m = JobDoneRequest{} }
 func (m *JobDoneRequest) String() string            { return proto.CompactTextString(m) }
 func (*JobDoneRequest) ProtoMessage()               {}
-func (*JobDoneRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
+func (*JobDoneRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
 
 func (m *JobDoneRequest) GetHeader() *RequestHeader {
 	if m != nil {
@@ -202,7 +386,7 @@ type Build struct {
 func (m *Build) Reset()                    { *m = Build{} }
 func (m *Build) String() string            { return proto.CompactTextString(m) }
 func (*Build) ProtoMessage()               {}
-func (*Build) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
+func (*Build) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{15} }
 
 func (m *Build) GetProjectName() string {
 	if m != nil {
@@ -254,7 +438,7 @@ type Project struct {
 func (m *Project) Reset()                    { *m = Project{} }
 func (m *Project) String() string            { return proto.CompactTextString(m) }
 func (*Project) ProtoMessage()               {}
-func (*Project) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+func (*Project) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{16} }
 
 func (m *Project) GetProjectName() string {
 	if m != nil {
@@ -277,7 +461,7 @@ type StandardRequest struct {
 func (m *StandardRequest) Reset()                    { *m = StandardRequest{} }
 func (m *StandardRequest) String() string            { return proto.CompactTextString(m) }
 func (*StandardRequest) ProtoMessage()               {}
-func (*StandardRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
+func (*StandardRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{17} }
 
 func (m *StandardRequest) GetHeader() *RequestHeader {
 	if m != nil {
@@ -293,7 +477,7 @@ type StandardResponse struct {
 func (m *StandardResponse) Reset()                    { *m = StandardResponse{} }
 func (m *StandardResponse) String() string            { return proto.CompactTextString(m) }
 func (*StandardResponse) ProtoMessage()               {}
-func (*StandardResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
+func (*StandardResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{18} }
 
 func (m *StandardResponse) GetHeader() *ResponseHeader {
 	if m != nil {
@@ -309,7 +493,7 @@ type RequestHeader struct {
 func (m *RequestHeader) Reset()                    { *m = RequestHeader{} }
 func (m *RequestHeader) String() string            { return proto.CompactTextString(m) }
 func (*RequestHeader) ProtoMessage()               {}
-func (*RequestHeader) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
+func (*RequestHeader) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{19} }
 
 func (m *RequestHeader) GetToken() string {
 	if m != nil {
@@ -326,7 +510,7 @@ type ResponseHeader struct {
 func (m *ResponseHeader) Reset()                    { *m = ResponseHeader{} }
 func (m *ResponseHeader) String() string            { return proto.CompactTextString(m) }
 func (*ResponseHeader) ProtoMessage()               {}
-func (*ResponseHeader) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
+func (*ResponseHeader) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{20} }
 
 func (m *ResponseHeader) GetSuccess() bool {
 	if m != nil {
@@ -350,7 +534,7 @@ type Error struct {
 func (m *Error) Reset()                    { *m = Error{} }
 func (m *Error) String() string            { return proto.CompactTextString(m) }
 func (*Error) ProtoMessage()               {}
-func (*Error) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
+func (*Error) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{21} }
 
 func (m *Error) GetCode() string {
 	if m != nil {
@@ -367,6 +551,14 @@ func (m *Error) GetMessage() string {
 }
 
 func init() {
+	proto.RegisterType((*Environment)(nil), "protobuf.Environment")
+	proto.RegisterType((*RegisterEnvironmentRequest)(nil), "protobuf.RegisterEnvironmentRequest")
+	proto.RegisterType((*GetEnvironmentResponse)(nil), "protobuf.GetEnvironmentResponse")
+	proto.RegisterType((*DeleteEnvironmentRequest)(nil), "protobuf.DeleteEnvironmentRequest")
+	proto.RegisterType((*DeployRequest)(nil), "protobuf.DeployRequest")
+	proto.RegisterType((*DeployResponse)(nil), "protobuf.DeployResponse")
+	proto.RegisterType((*AutomationRequest)(nil), "protobuf.AutomationRequest")
+	proto.RegisterType((*AutomationResponse)(nil), "protobuf.AutomationResponse")
 	proto.RegisterType((*GetProjectsResponse)(nil), "protobuf.GetProjectsResponse")
 	proto.RegisterType((*GetBuildsRequest)(nil), "protobuf.GetBuildsRequest")
 	proto.RegisterType((*GetBuildsResponse)(nil), "protobuf.GetBuildsResponse")
@@ -399,6 +591,11 @@ type DeploiServerClient interface {
 	MarkJobDone(ctx context.Context, in *JobDoneRequest, opts ...grpc.CallOption) (*StandardResponse, error)
 	GetProjects(ctx context.Context, in *StandardRequest, opts ...grpc.CallOption) (*GetProjectsResponse, error)
 	GetBuilds(ctx context.Context, in *GetBuildsRequest, opts ...grpc.CallOption) (*GetBuildsResponse, error)
+	DeployBuild(ctx context.Context, in *DeployRequest, opts ...grpc.CallOption) (*DeployResponse, error)
+	AutomateDeployment(ctx context.Context, in *AutomationRequest, opts ...grpc.CallOption) (*AutomationResponse, error)
+	RegisterEnvironment(ctx context.Context, in *RegisterEnvironmentRequest, opts ...grpc.CallOption) (*StandardResponse, error)
+	GetEnvironments(ctx context.Context, in *StandardRequest, opts ...grpc.CallOption) (*GetEnvironmentResponse, error)
+	DeleteEnvironment(ctx context.Context, in *DeleteEnvironmentRequest, opts ...grpc.CallOption) (*StandardResponse, error)
 }
 
 type deploiServerClient struct {
@@ -454,6 +651,51 @@ func (c *deploiServerClient) GetBuilds(ctx context.Context, in *GetBuildsRequest
 	return out, nil
 }
 
+func (c *deploiServerClient) DeployBuild(ctx context.Context, in *DeployRequest, opts ...grpc.CallOption) (*DeployResponse, error) {
+	out := new(DeployResponse)
+	err := grpc.Invoke(ctx, "/protobuf.DeploiServer/DeployBuild", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *deploiServerClient) AutomateDeployment(ctx context.Context, in *AutomationRequest, opts ...grpc.CallOption) (*AutomationResponse, error) {
+	out := new(AutomationResponse)
+	err := grpc.Invoke(ctx, "/protobuf.DeploiServer/AutomateDeployment", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *deploiServerClient) RegisterEnvironment(ctx context.Context, in *RegisterEnvironmentRequest, opts ...grpc.CallOption) (*StandardResponse, error) {
+	out := new(StandardResponse)
+	err := grpc.Invoke(ctx, "/protobuf.DeploiServer/RegisterEnvironment", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *deploiServerClient) GetEnvironments(ctx context.Context, in *StandardRequest, opts ...grpc.CallOption) (*GetEnvironmentResponse, error) {
+	out := new(GetEnvironmentResponse)
+	err := grpc.Invoke(ctx, "/protobuf.DeploiServer/GetEnvironments", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *deploiServerClient) DeleteEnvironment(ctx context.Context, in *DeleteEnvironmentRequest, opts ...grpc.CallOption) (*StandardResponse, error) {
+	out := new(StandardResponse)
+	err := grpc.Invoke(ctx, "/protobuf.DeploiServer/DeleteEnvironment", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for DeploiServer service
 
 type DeploiServerServer interface {
@@ -462,6 +704,11 @@ type DeploiServerServer interface {
 	MarkJobDone(context.Context, *JobDoneRequest) (*StandardResponse, error)
 	GetProjects(context.Context, *StandardRequest) (*GetProjectsResponse, error)
 	GetBuilds(context.Context, *GetBuildsRequest) (*GetBuildsResponse, error)
+	DeployBuild(context.Context, *DeployRequest) (*DeployResponse, error)
+	AutomateDeployment(context.Context, *AutomationRequest) (*AutomationResponse, error)
+	RegisterEnvironment(context.Context, *RegisterEnvironmentRequest) (*StandardResponse, error)
+	GetEnvironments(context.Context, *StandardRequest) (*GetEnvironmentResponse, error)
+	DeleteEnvironment(context.Context, *DeleteEnvironmentRequest) (*StandardResponse, error)
 }
 
 func RegisterDeploiServerServer(s *grpc.Server, srv DeploiServerServer) {
@@ -558,6 +805,96 @@ func _DeploiServer_GetBuilds_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DeploiServer_DeployBuild_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeployRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeploiServerServer).DeployBuild(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protobuf.DeploiServer/DeployBuild",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeploiServerServer).DeployBuild(ctx, req.(*DeployRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DeploiServer_AutomateDeployment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AutomationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeploiServerServer).AutomateDeployment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protobuf.DeploiServer/AutomateDeployment",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeploiServerServer).AutomateDeployment(ctx, req.(*AutomationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DeploiServer_RegisterEnvironment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterEnvironmentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeploiServerServer).RegisterEnvironment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protobuf.DeploiServer/RegisterEnvironment",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeploiServerServer).RegisterEnvironment(ctx, req.(*RegisterEnvironmentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DeploiServer_GetEnvironments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StandardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeploiServerServer).GetEnvironments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protobuf.DeploiServer/GetEnvironments",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeploiServerServer).GetEnvironments(ctx, req.(*StandardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DeploiServer_DeleteEnvironment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteEnvironmentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeploiServerServer).DeleteEnvironment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protobuf.DeploiServer/DeleteEnvironment",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeploiServerServer).DeleteEnvironment(ctx, req.(*DeleteEnvironmentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _DeploiServer_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "protobuf.DeploiServer",
 	HandlerType: (*DeploiServerServer)(nil),
@@ -582,6 +919,26 @@ var _DeploiServer_serviceDesc = grpc.ServiceDesc{
 			MethodName: "GetBuilds",
 			Handler:    _DeploiServer_GetBuilds_Handler,
 		},
+		{
+			MethodName: "DeployBuild",
+			Handler:    _DeploiServer_DeployBuild_Handler,
+		},
+		{
+			MethodName: "AutomateDeployment",
+			Handler:    _DeploiServer_AutomateDeployment_Handler,
+		},
+		{
+			MethodName: "RegisterEnvironment",
+			Handler:    _DeploiServer_RegisterEnvironment_Handler,
+		},
+		{
+			MethodName: "GetEnvironments",
+			Handler:    _DeploiServer_GetEnvironments_Handler,
+		},
+		{
+			MethodName: "DeleteEnvironment",
+			Handler:    _DeploiServer_DeleteEnvironment_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "server.proto",
@@ -590,39 +947,53 @@ var _DeploiServer_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("server.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 542 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0xdb, 0x6e, 0xd3, 0x40,
-	0x10, 0xad, 0x93, 0x26, 0x6d, 0x26, 0x25, 0x09, 0x0b, 0x12, 0xae, 0xb9, 0x28, 0x5a, 0xa9, 0x90,
-	0xa7, 0x80, 0x82, 0xf8, 0x80, 0xb6, 0x29, 0xa1, 0x05, 0x22, 0xb4, 0x81, 0x0f, 0xf0, 0x65, 0x68,
-	0x43, 0x1b, 0x6f, 0xd8, 0xdd, 0x70, 0xf9, 0x40, 0x7e, 0x8a, 0x27, 0xe4, 0xc9, 0x3a, 0x76, 0x8c,
-	0xa5, 0x56, 0x7e, 0xf2, 0xce, 0x9c, 0xf1, 0x99, 0x3d, 0x33, 0x3b, 0x03, 0x07, 0x1a, 0xd5, 0x0f,
-	0x54, 0xc3, 0xa5, 0x92, 0x46, 0xb2, 0x7d, 0xfa, 0x04, 0xab, 0xaf, 0x3c, 0x84, 0x07, 0x13, 0x34,
-	0x9f, 0x94, 0xfc, 0x86, 0xa1, 0xd1, 0x02, 0xf5, 0x52, 0xc6, 0x1a, 0xd9, 0x2b, 0x68, 0x5e, 0xa1,
-	0x1f, 0xa1, 0x72, 0x9d, 0xbe, 0x33, 0x68, 0x8f, 0xdc, 0x61, 0xfa, 0xc7, 0x30, 0x8d, 0x79, 0x47,
-	0xb8, 0xb0, 0x71, 0xcc, 0x83, 0x84, 0x94, 0x58, 0xdc, 0x5a, 0xbf, 0x3e, 0x68, 0x89, 0x8d, 0xcd,
-	0x11, 0x7a, 0x13, 0x34, 0x27, 0xab, 0xf9, 0x4d, 0xa4, 0x05, 0x7e, 0x5f, 0xa1, 0x36, 0xec, 0x65,
-	0x21, 0xc3, 0xa3, 0x7c, 0x06, 0x0a, 0x29, 0x24, 0xe8, 0x43, 0xdb, 0x12, 0x4e, 0xfd, 0x05, 0xba,
-	0xb5, 0xbe, 0x33, 0x68, 0x89, 0xbc, 0x8b, 0xc7, 0x70, 0x3f, 0x97, 0xa6, 0xb2, 0x92, 0x17, 0xd0,
-	0x0c, 0x88, 0x83, 0x74, 0xb4, 0x47, 0xdd, 0xec, 0x0f, 0xe2, 0x16, 0x16, 0xe6, 0x73, 0xe8, 0x4e,
-	0xf1, 0xe7, 0xda, 0x57, 0x55, 0xd5, 0x11, 0x34, 0x88, 0x8d, 0xf4, 0x94, 0xe4, 0x5a, 0xa3, 0xfc,
-	0x18, 0x3a, 0x53, 0xfc, 0x65, 0x2e, 0x64, 0x50, 0x35, 0x13, 0x3f, 0x4d, 0x6e, 0x6b, 0x29, 0xaa,
-	0xd6, 0x26, 0xb9, 0xc7, 0x85, 0x0c, 0xc6, 0x32, 0xc6, 0xca, 0xf7, 0xf8, 0xe3, 0x40, 0x83, 0xb4,
-	0x15, 0x3b, 0xea, 0xfc, 0xd7, 0x51, 0xe6, 0xc2, 0x1e, 0xe9, 0x3f, 0x8f, 0x6c, 0xbf, 0x53, 0x33,
-	0x79, 0x6e, 0x74, 0xfc, 0x22, 0x3e, 0xb8, 0x75, 0x82, 0x36, 0x36, 0x7b, 0x0e, 0x1d, 0x3a, 0xcf,
-	0x7e, 0x6b, 0x83, 0x8b, 0x24, 0x62, 0x97, 0x22, 0x0a, 0x5e, 0xf6, 0x0c, 0x20, 0x50, 0x7e, 0x1c,
-	0x5e, 0x51, 0xfa, 0x06, 0xc5, 0xe4, 0x3c, 0xec, 0x09, 0xb4, 0x42, 0x85, 0xbe, 0xc1, 0xe8, 0xd8,
-	0xb8, 0xcd, 0xbe, 0x33, 0xa8, 0x8b, 0xcc, 0xc1, 0x3f, 0xc3, 0x9e, 0x1d, 0x9b, 0x3b, 0x08, 0xb9,
-	0xf3, 0x9b, 0x3a, 0x81, 0xee, 0xcc, 0xf8, 0x71, 0xe4, 0xab, 0xca, 0x6f, 0x8a, 0x8f, 0xa1, 0x97,
-	0x71, 0x54, 0x6e, 0xf5, 0x11, 0xdc, 0xdb, 0xa2, 0x67, 0x0f, 0xa1, 0x61, 0xe4, 0x35, 0xc6, 0x56,
-	0xdf, 0xda, 0xe0, 0x33, 0xe8, 0x6c, 0x13, 0x24, 0x4d, 0xd3, 0xab, 0x30, 0x44, 0xad, 0x29, 0x72,
-	0x5f, 0xa4, 0x66, 0x52, 0x05, 0x54, 0x4a, 0xaa, 0x92, 0x2a, 0x9c, 0x25, 0x7e, 0x61, 0x61, 0xfe,
-	0x06, 0x1a, 0xe4, 0x60, 0x0c, 0x76, 0x43, 0x19, 0xa5, 0x25, 0xa5, 0x73, 0xc2, 0xbf, 0x40, 0xad,
-	0xfd, 0xcb, 0x74, 0x09, 0xa4, 0xe6, 0xe8, 0x6f, 0x0d, 0x0e, 0xc6, 0xb8, 0xbc, 0x91, 0xf3, 0x19,
-	0x6d, 0x3b, 0xf6, 0x1e, 0x7a, 0x02, 0x2f, 0xe7, 0xda, 0xa0, 0x4a, 0x27, 0x95, 0x1d, 0x66, 0x49,
-	0x0b, 0xd3, 0xeb, 0x79, 0x19, 0x54, 0x2c, 0x20, 0xdf, 0x61, 0xa7, 0x00, 0x13, 0x34, 0x76, 0x86,
-	0x98, 0x9b, 0xa7, 0xc9, 0x4f, 0xa6, 0x77, 0x58, 0x82, 0x6c, 0x48, 0xce, 0xa0, 0xfd, 0xd1, 0x57,
-	0xd7, 0x76, 0x88, 0xf2, 0x2c, 0xdb, 0x73, 0x75, 0xcb, 0x5d, 0xce, 0xa1, 0x9d, 0x5b, 0xdb, 0x79,
-	0x4d, 0x85, 0xd7, 0xe3, 0x3d, 0xcd, 0xa0, 0x92, 0x45, 0xcf, 0x77, 0xd8, 0x5b, 0x68, 0x6d, 0xb6,
-	0x26, 0xf3, 0xb6, 0xa2, 0xb7, 0x36, 0xb6, 0xf7, 0xb8, 0x14, 0x4b, 0x79, 0x82, 0x26, 0xa1, 0xaf,
-	0xff, 0x05, 0x00, 0x00, 0xff, 0xff, 0x41, 0x37, 0x23, 0x39, 0x6a, 0x06, 0x00, 0x00,
+	// 768 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x56, 0xdd, 0x52, 0xd3, 0x4e,
+	0x14, 0x27, 0x40, 0x0b, 0x3d, 0x85, 0x16, 0x96, 0xff, 0x47, 0x88, 0xe8, 0x74, 0x76, 0x44, 0xb9,
+	0x42, 0x07, 0xc7, 0x71, 0xbc, 0x6c, 0x29, 0x54, 0x50, 0x19, 0x4c, 0xe5, 0xc2, 0xcb, 0x34, 0x3d,
+	0x42, 0x85, 0x26, 0x75, 0x77, 0x8b, 0x72, 0xaf, 0xbe, 0x81, 0x8f, 0xe4, 0x7b, 0x39, 0xbb, 0xd9,
+	0x24, 0x9b, 0x36, 0x7c, 0x4c, 0xbc, 0xf0, 0x2a, 0xbb, 0xe7, 0x9c, 0xfc, 0xce, 0xf7, 0x9e, 0x03,
+	0x4b, 0x1c, 0xd9, 0x25, 0xb2, 0xed, 0x11, 0x0b, 0x45, 0x48, 0x16, 0xd5, 0xa7, 0x37, 0xfe, 0x48,
+	0x9b, 0x50, 0xdd, 0x0b, 0x2e, 0x07, 0x2c, 0x0c, 0x86, 0x18, 0x08, 0x42, 0x60, 0x3e, 0xf0, 0x86,
+	0x68, 0x5b, 0x0d, 0x6b, 0xab, 0xe2, 0xaa, 0x33, 0x79, 0x00, 0x20, 0xbf, 0x7c, 0xe4, 0xf9, 0xc8,
+	0xed, 0xd9, 0xc6, 0xdc, 0x56, 0xc5, 0x35, 0x28, 0xf4, 0x87, 0x05, 0x8e, 0x8b, 0xa7, 0x03, 0x2e,
+	0x90, 0x19, 0x58, 0x2e, 0x7e, 0x1e, 0x23, 0x17, 0xe4, 0x09, 0x94, 0xcf, 0xd0, 0xeb, 0x23, 0x53,
+	0xa0, 0xd5, 0x9d, 0xff, 0xb7, 0x63, 0xe5, 0xdb, 0x5a, 0xe4, 0x95, 0x62, 0xbb, 0x5a, 0x8c, 0xbc,
+	0x80, 0x2a, 0xa6, 0x30, 0xf6, 0xac, 0xfa, 0xeb, 0xdf, 0xf4, 0x2f, 0x53, 0x87, 0x29, 0x49, 0xbf,
+	0x5b, 0xf0, 0x5f, 0x07, 0x45, 0xc6, 0x06, 0x3e, 0x0a, 0x03, 0x8e, 0xe4, 0xe9, 0x84, 0x11, 0xb6,
+	0x69, 0x44, 0x24, 0x33, 0x61, 0xc5, 0x4b, 0x58, 0x32, 0xb0, 0x23, 0xbf, 0xaf, 0x35, 0x23, 0x23,
+	0x4a, 0xbf, 0x59, 0x60, 0xb7, 0xf1, 0x02, 0x05, 0xfe, 0xd5, 0x70, 0x08, 0x58, 0x6e, 0xe3, 0xe8,
+	0x22, 0xbc, 0x2a, 0xac, 0xda, 0x86, 0x85, 0x11, 0x0b, 0x3f, 0xa1, 0x1f, 0xa9, 0xad, 0xb8, 0xf1,
+	0x55, 0x72, 0x7a, 0xe3, 0xc1, 0x45, 0xff, 0xa0, 0x6f, 0xcf, 0x45, 0x1c, 0x7d, 0xa5, 0x2d, 0xa8,
+	0xc5, 0x5a, 0x8b, 0xc6, 0x9e, 0xb6, 0x61, 0xb5, 0x39, 0x16, 0xe1, 0xd0, 0x13, 0x83, 0x30, 0x28,
+	0x6a, 0x3d, 0xdd, 0x07, 0x62, 0xa2, 0x14, 0xb6, 0xc6, 0x87, 0xb5, 0x0e, 0x8a, 0xe3, 0xc8, 0x73,
+	0xfe, 0x07, 0x25, 0xe5, 0xc0, 0xa2, 0x8e, 0x5f, 0xdc, 0x46, 0xc9, 0x9d, 0x22, 0xac, 0x74, 0x50,
+	0xb4, 0x64, 0x10, 0x79, 0xe1, 0x7c, 0x35, 0xa0, 0xaa, 0x01, 0x8f, 0x64, 0x13, 0x47, 0x39, 0x33,
+	0x49, 0x34, 0x80, 0x55, 0x43, 0x4d, 0x61, 0x4f, 0x1e, 0x43, 0x59, 0xe5, 0x3b, 0x6e, 0x8b, 0x7a,
+	0xfa, 0x87, 0xc2, 0x76, 0x35, 0x9b, 0x0e, 0xa0, 0x7e, 0x84, 0x5f, 0x22, 0x5a, 0x51, 0xaf, 0x36,
+	0xa1, 0xa4, 0xd0, 0x74, 0xe9, 0x4f, 0xe9, 0x8a, 0xb8, 0xb4, 0x09, 0xb5, 0x23, 0xfc, 0x2a, 0x0e,
+	0xc3, 0x5e, 0xe1, 0x8a, 0xd9, 0x95, 0xd6, 0x6a, 0x88, 0xc2, 0xe5, 0xd2, 0x84, 0xda, 0x61, 0xd8,
+	0x6b, 0x87, 0x01, 0x16, 0xb6, 0xe3, 0x97, 0x05, 0x25, 0xe5, 0xdb, 0x64, 0x46, 0xad, 0xa9, 0x8c,
+	0x9a, 0x9d, 0x38, 0x9b, 0xe9, 0x44, 0x59, 0x6e, 0xea, 0x78, 0xe2, 0xbe, 0xd1, 0x4d, 0x9a, 0xdc,
+	0xc9, 0x23, 0xa8, 0xa9, 0x73, 0xf7, 0x8a, 0x0b, 0x1c, 0x4a, 0x89, 0x79, 0x25, 0x31, 0x41, 0x95,
+	0x6f, 0x7f, 0x8f, 0x79, 0x81, 0x7f, 0xa6, 0xd4, 0x97, 0x94, 0x8c, 0x41, 0x21, 0x1b, 0x50, 0xf1,
+	0x19, 0x7a, 0x02, 0xfb, 0x4d, 0x61, 0x97, 0x1b, 0xd6, 0xd6, 0x9c, 0x9b, 0x12, 0xe8, 0x7b, 0x58,
+	0xd0, 0x6d, 0x73, 0x07, 0x47, 0xee, 0x5c, 0x53, 0x2d, 0xa8, 0x77, 0x85, 0x17, 0xf4, 0x3d, 0x56,
+	0xb8, 0xa6, 0x68, 0x1b, 0x56, 0x52, 0x8c, 0xc2, 0xa9, 0xde, 0x84, 0xe5, 0x0c, 0x3c, 0xf9, 0x07,
+	0x4a, 0x22, 0x3c, 0xc7, 0x40, 0xfb, 0x17, 0x5d, 0x68, 0x17, 0x6a, 0x59, 0x00, 0x99, 0x34, 0x3e,
+	0xf6, 0x7d, 0xe4, 0x5c, 0x49, 0x2e, 0xba, 0xf1, 0x55, 0x46, 0x01, 0x19, 0x0b, 0x59, 0x4e, 0x14,
+	0xf6, 0x24, 0xdd, 0xd5, 0x6c, 0xfa, 0x1c, 0x4a, 0x8a, 0x20, 0x47, 0xb6, 0x1f, 0xf6, 0x93, 0x91,
+	0x2d, 0xcf, 0x12, 0x7f, 0x88, 0x9c, 0x7b, 0xa7, 0xf1, 0x23, 0x10, 0x5f, 0x77, 0x7e, 0x96, 0x61,
+	0x49, 0xbd, 0xcf, 0x83, 0xae, 0x5a, 0x08, 0xc8, 0x6b, 0x58, 0x89, 0x87, 0x77, 0xdc, 0xa9, 0x64,
+	0x3d, 0x55, 0x3a, 0xd1, 0xbd, 0x8e, 0x93, 0xb2, 0x26, 0x03, 0x48, 0x67, 0xc8, 0x2e, 0x40, 0x07,
+	0x85, 0xee, 0x21, 0x62, 0x9b, 0x30, 0x66, 0x67, 0x3a, 0xeb, 0x39, 0x9c, 0x04, 0x64, 0x0f, 0xaa,
+	0x6f, 0x3d, 0x76, 0xae, 0x9b, 0xc8, 0x44, 0xc9, 0xf6, 0xd5, 0x2d, 0xb6, 0x1c, 0x40, 0xd5, 0x78,
+	0xb6, 0x4d, 0x9f, 0x26, 0xaa, 0xc7, 0xb9, 0x9f, 0xb2, 0x72, 0x1e, 0x7a, 0x3a, 0x43, 0xf6, 0xa1,
+	0x92, 0xbc, 0x9a, 0xc4, 0xc9, 0x48, 0x67, 0x5e, 0x6c, 0xe7, 0x5e, 0x2e, 0x2f, 0xc1, 0x69, 0x41,
+	0x35, 0x9a, 0x8d, 0x51, 0x98, 0x8d, 0x2a, 0xcd, 0x0c, 0x6a, 0xc7, 0x9e, 0x66, 0x24, 0x18, 0xef,
+	0x92, 0xa9, 0x86, 0x11, 0x4f, 0xed, 0x6d, 0x86, 0xe2, 0xa9, 0xc9, 0xe9, 0x6c, 0xe4, 0x33, 0x13,
+	0xc8, 0x0f, 0xb0, 0x96, 0xb3, 0xbf, 0x91, 0x87, 0x66, 0xfd, 0x5f, 0xb7, 0xde, 0xdd, 0x92, 0x84,
+	0x63, 0xa8, 0x67, 0x37, 0xb2, 0x1b, 0x13, 0xd1, 0xc8, 0x84, 0x2f, 0x67, 0x8f, 0xa3, 0x33, 0xe4,
+	0x04, 0x56, 0xa7, 0x76, 0x2b, 0x42, 0xcd, 0x80, 0xe5, 0x2f, 0x5e, 0x37, 0x1b, 0xda, 0x2b, 0x2b,
+	0xe6, 0xb3, 0xdf, 0x01, 0x00, 0x00, 0xff, 0xff, 0x14, 0x55, 0xfc, 0x40, 0x28, 0x0b, 0x00, 0x00,
 }
