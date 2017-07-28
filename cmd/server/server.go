@@ -47,7 +47,7 @@ func (s *server) RegisterNewBuild(ctx context.Context, req *protobuf.NewBuildReq
 	return res, nil
 }
 
-func (s *server) GetNextJob(ctx context.Context, req *protobuf.NextJobRequest) (*protobuf.NextJobResponse, error) {
+func (s *server) GetNextJobs(ctx context.Context, req *protobuf.NextJobRequest) (*protobuf.NextJobResponse, error) {
 	res := &protobuf.NextJobResponse{
 		Header: &protobuf.ResponseHeader{
 			Success: true,

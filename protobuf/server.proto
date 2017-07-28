@@ -4,7 +4,7 @@ package protobuf;
 
 service DeploiServer {
   rpc RegisterNewBuild(NewBuildRequest) returns (StandardResponse) {}
-  rpc GetNextJob(NextJobRequest) returns (NextJobResponse) {}
+  rpc GetNextJobs(NextJobRequest) returns (NextJobResponse) {}
   rpc MarkJobDone(JobDoneRequest) returns (StandardResponse) {}
   rpc GetProjects(StandardRequest) returns (GetProjectsResponse) {}
   rpc GetBuilds(GetBuildsRequest) returns (GetBuildsResponse) {}
@@ -97,6 +97,7 @@ message NextJobResponse {
 
 message JobDoneRequest {
   RequestHeader header = 1;
+  string jobId = 2;
 }
 
 message Build {
