@@ -74,8 +74,41 @@ func (s *server) GetNextJobs(ctx context.Context, req *protobuf.NextJobRequest) 
 	return res, nil
 }
 
-func (s *server) MarkJobDone(context.Context, *protobuf.JobDoneRequest) (*protobuf.StandardResponse, error) {
-	return nil, nil
+func (s *server) MarkJobDone(ctx context.Context, req *protobuf.JobDoneRequest) (*protobuf.StandardResponse, error) {
+	log.Debugf("Marking job %s as done", req.Job.Id)
+	res := &protobuf.StandardResponse{
+		Header: &protobuf.ResponseHeader{
+			Success: true,
+		},
+	}
+	err := s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(JobBucket)
+		djb := tx.Bucket(DoneJobBucket)
+		job := getPendingJob(b, req.Job.Id, req.Job.Environment.Name)
+		if job == nil {
+			addError(res.Header, "JOB_MISSING", "The provided job could not be found in the database")
+			return &AlreadyHandledError{}
+		}
+		job.FinishedAt = time.Now().Unix()
+		if err := storeJob(djb, job); err != nil {
+			log.Errorf("Failed to store job %s in done bucket: %s", job.Id, err)
+			addInternalError(res.Header)
+			return &AlreadyHandledError{}
+		}
+		if err := b.Delete([]byte(fmt.Sprintf("%s_%s", job.Environment.Name, job.Id))); err != nil {
+			log.Errorf("Failed to delete job %s from job queue: %s", job.Id, err)
+			addInternalError(res.Header)
+			return &AlreadyHandledError{}
+		}
+		return nil
+	})
+	if _, ok := err.(*AlreadyHandledError); !ok && err != nil {
+		log.Errorf("Failed to mark job as done: %s", err)
+		addInternalError(res.Header)
+		return res, nil
+	}
+	log.Debugf("Marking job %s worked", req.Job.Id)
+	return res, nil
 }
 
 func (s *server) GetProjects(ctx context.Context, req *protobuf.StandardRequest) (*protobuf.GetProjectsResponse, error) {
@@ -209,7 +242,7 @@ func (s *server) RegisterEnvironment(ctx context.Context, req *protobuf.Register
 	}
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket(EnvironmentBucket)
-		env := getEnvironment(b, req.Environment.Name)
+		env := getOrCreateEnvironment(b, req.Environment.Name)
 		env.Namespaces = append(env.Namespaces, req.Environment.Namespaces...)
 		if err := storeEnvironment(b, env); err != nil {
 			return err

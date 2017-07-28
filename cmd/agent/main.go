@@ -44,7 +44,9 @@ func main() {
 		}
 		if jobs != nil {
 			for _, job := range jobs {
-				a.processJob(job)
+				if err := a.processJob(job); err != nil {
+					log.Errorf("Failed to process job %s: %s", job.Id, err)
+				}
 			}
 		}
 		time.Sleep(10 * time.Second)

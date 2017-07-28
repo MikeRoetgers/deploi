@@ -97,7 +97,7 @@ message NextJobResponse {
 
 message JobDoneRequest {
   RequestHeader header = 1;
-  string jobId = 2;
+  Job job = 2;
 }
 
 message Build {

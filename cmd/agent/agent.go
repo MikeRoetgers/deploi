@@ -22,7 +22,7 @@ func (a *agent) processJob(job *protobuf.Job) error {
 	fmt.Printf("ID: %s\nProject: %s\nBuild: %s\nEnv: %s\n\n", job.Id, job.Build.ProjectName, job.Build.BuildId, job.Environment.Name)
 	req := &protobuf.JobDoneRequest{
 		Header: &protobuf.RequestHeader{},
-		JobId:  job.Id,
+		Job:    job,
 	}
 	res, err := a.deploiClient.MarkJobDone(context.Background(), req)
 	if err != nil {

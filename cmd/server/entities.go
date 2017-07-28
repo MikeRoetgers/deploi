@@ -107,3 +107,29 @@ func storeJob(bucket *bolt.Bucket, job *protobuf.Job) error {
 	}
 	return nil
 }
+
+func getPendingJob(bucket *bolt.Bucket, id, environment string) *protobuf.Job {
+	val := bucket.Get([]byte(fmt.Sprintf("%s_%s", environment, id)))
+	job := &protobuf.Job{}
+	if len(val) == 0 {
+		return nil
+	}
+	if err := proto.Unmarshal(val, job); err != nil {
+		log.Errorf("Failed to unmarshal job %s. Error: %s", id, err)
+		return nil
+	}
+	return job
+}
+
+func getJob(bucket *bolt.Bucket, id string) *protobuf.Job {
+	val := bucket.Get([]byte(id))
+	job := &protobuf.Job{}
+	if len(val) == 0 {
+		return nil
+	}
+	if err := proto.Unmarshal(val, job); err != nil {
+		log.Errorf("Failed to unmarshal job %s. Error: %s", id, err)
+		return nil
+	}
+	return job
+}
