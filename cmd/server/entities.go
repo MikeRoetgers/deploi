@@ -12,14 +12,23 @@ func getProject(bucket *bolt.Bucket, name string) *protobuf.Project {
 	val := bucket.Get([]byte(name))
 	proj := &protobuf.Project{}
 	if len(val) == 0 {
-		proj.ProjectName = name
-		return proj
+		return nil
 	}
 	if err := proto.Unmarshal(val, proj); err != nil {
-		log.Errorf("Failed to unmarshal project %s. Entity was reset. Error: %s", name, err)
-		proj.ProjectName = name
+		log.Errorf("Failed to unmarshal project %s. Error: %s", name, err)
+		return nil
 	}
 	return proj
+}
+
+func getOrCreateProject(bucket *bolt.Bucket, name string) *protobuf.Project {
+	res := getProject(bucket, name)
+	if res == nil {
+		return &protobuf.Project{
+			ProjectName: name,
+		}
+	}
+	return res
 }
 
 func storeProject(bucket *bolt.Bucket, project *protobuf.Project) error {
@@ -37,12 +46,21 @@ func getEnvironment(bucket *bolt.Bucket, name string) *protobuf.Environment {
 	val := bucket.Get([]byte(name))
 	env := &protobuf.Environment{}
 	if len(val) == 0 {
-		env.Name = name
-		return env
+		return nil
 	}
 	if err := proto.Unmarshal(val, env); err != nil {
-		log.Errorf("Failed to unmarshal environment %s. Entity was reset. Error: %s", name, err)
-		env.Name = name
+		log.Errorf("Failed to unmarshal environment %s. Error: %s", name, err)
+		return nil
+	}
+	return env
+}
+
+func getOrCreateEnvironment(bucket *bolt.Bucket, name string) *protobuf.Environment {
+	env := getEnvironment(bucket, name)
+	if env == nil {
+		return &protobuf.Environment{
+			Name: name,
+		}
 	}
 	return env
 }
@@ -54,6 +72,38 @@ func storeEnvironment(bucket *bolt.Bucket, env *protobuf.Environment) error {
 	}
 	if err = bucket.Put([]byte(env.Name), val); err != nil {
 		return fmt.Errorf("Failed to store environment: %s", err)
+	}
+	return nil
+}
+
+func environmentHasNamespace(env *protobuf.Environment, namespace string) bool {
+	for _, v := range env.Namespaces {
+		if v == namespace {
+			return true
+		}
+	}
+	return false
+}
+
+// Uses a different key pattern (env_jobid) to make the bucket easily searchable
+func storePendingJob(bucket *bolt.Bucket, job *protobuf.Job) error {
+	val, err := proto.Marshal(job)
+	if err != nil {
+		return fmt.Errorf("Failed to marshal job: %s", err)
+	}
+	if err = bucket.Put([]byte(job.Environment.Name+"_"+job.Id), val); err != nil {
+		return fmt.Errorf("Failed to store job: %s", err)
+	}
+	return nil
+}
+
+func storeJob(bucket *bolt.Bucket, job *protobuf.Job) error {
+	val, err := proto.Marshal(job)
+	if err != nil {
+		return fmt.Errorf("Failed to marshal job: %s", err)
+	}
+	if err = bucket.Put([]byte(job.Id), val); err != nil {
+		return fmt.Errorf("Failed to store job: %s", err)
 	}
 	return nil
 }

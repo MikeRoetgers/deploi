@@ -15,8 +15,10 @@ package cmd
 
 import (
 	"context"
+	"io/ioutil"
 	"os"
 
+	"github.com/MikeRoetgers/deploi"
 	"github.com/MikeRoetgers/deploi/protobuf"
 	"github.com/spf13/cobra"
 )
@@ -57,12 +59,25 @@ var registerCmd = &cobra.Command{
 			cmd.Println(err)
 			os.Exit(1)
 		}
+		manifest, err := cmd.Flags().GetString("manifest")
+		if err != nil {
+			cmd.Println(err)
+			os.Exit(1)
+		}
+		manifestContent, err := ioutil.ReadFile(manifest)
+		if err != nil {
+			cmd.Printf("Failed to read manifest file: %s", err)
+			os.Exit(1)
+		}
 		b := &protobuf.Build{
 			ProjectName:    project,
 			BuildId:        build,
 			BuildURL:       url,
 			BuildSystemURL: systemUrl,
 			BranchName:     branch,
+			Files: map[string]string{
+				deploi.ManifestFile: string(manifestContent),
+			},
 		}
 		req := &protobuf.NewBuildRequest{
 			Build: b,
@@ -116,26 +131,84 @@ var buildListCmd = &cobra.Command{
 	},
 }
 
+var buildDeployCmd = &cobra.Command{
+	Use:   "deploy",
+	Short: "Deploys a build onto an environment",
+	Run: func(cmd *cobra.Command, args []string) {
+		project, err := cmd.Flags().GetString("project")
+		if err != nil {
+			cmd.Println(err)
+			os.Exit(1)
+		}
+		build, err := cmd.Flags().GetString("build")
+		if err != nil {
+			cmd.Println(err)
+			os.Exit(1)
+		}
+		environment, err := cmd.Flags().GetString("environment")
+		if err != nil {
+			cmd.Println(err)
+			os.Exit(1)
+		}
+		namespace, err := cmd.Flags().GetString("namespace")
+		if err != nil {
+			cmd.Println(err)
+			os.Exit(1)
+		}
+		manifest, err := cmd.Flags().GetString("manifest")
+		if err != nil {
+			cmd.Println(err)
+			os.Exit(1)
+		}
+
+		req := &protobuf.DeployRequest{
+			Project:     project,
+			BuildId:     build,
+			Environment: environment,
+			Namespace:   namespace,
+		}
+		if manifest != "" {
+			manifestContent, err := ioutil.ReadFile(manifest)
+			if err != nil {
+				cmd.Printf("Failed to read manifest file: %s", err)
+				os.Exit(1)
+			}
+			req.Files = map[string]string{
+				deploi.ManifestFile: string(manifestContent),
+			}
+		}
+
+		res, err := DeploiClient.DeployBuild(context.Background(), req)
+		if err != nil {
+			cmd.Printf("Failed to connect to deploid: %s\n", err)
+			os.Exit(1)
+		}
+		if !res.Header.Success {
+			cmd.Printf("Failed to start a deployment")
+			for _, er := range res.Header.Errors {
+				cmd.Printf("Code: %s | Message: %s\n", er.Code, er.Message)
+			}
+			os.Exit(1)
+		}
+	},
+}
+
 func init() {
 	RootCmd.AddCommand(buildCmd)
-	buildCmd.AddCommand(registerCmd)
-	buildCmd.AddCommand(buildListCmd)
+	buildCmd.AddCommand(registerCmd, buildListCmd, buildDeployCmd)
 
 	registerCmd.Flags().StringP("project", "p", "", "Name of the project")
 	registerCmd.Flags().StringP("build", "b", "", "Version/ID of the build")
 	registerCmd.Flags().StringP("url", "u", "", "URL that leads to the build, e.g. https://registry.deploi.io:5000/myproject:161")
 	registerCmd.Flags().StringP("systemUrl", "s", "", "Deeplink back to the build in the build system, e.g. Jenkins")
 	registerCmd.Flags().StringP("branch", "", "", "Name of the branch the build originated from")
+	registerCmd.Flags().StringP("manifest", "m", "", "Path to the manifest file needed for deployment")
 
 	buildListCmd.Flags().StringP("project", "p", "", "Name of the project")
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// buildCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// buildCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	buildDeployCmd.Flags().StringP("project", "p", "", "Name of the project")
+	buildDeployCmd.Flags().StringP("build", "b", "", "Version/ID of the build")
+	buildDeployCmd.Flags().StringP("environment", "e", "", "Name of the environment")
+	buildDeployCmd.Flags().StringP("namespace", "n", "", "Namespace in the environment")
+	buildDeployCmd.Flags().StringP("manifest", "m", "", "Overwrites manifest file included in the build")
 }

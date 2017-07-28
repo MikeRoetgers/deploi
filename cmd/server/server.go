@@ -1,13 +1,17 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"time"
 
 	"golang.org/x/net/context"
 
+	"github.com/MikeRoetgers/deploi"
 	"github.com/MikeRoetgers/deploi/protobuf"
 	"github.com/boltdb/bolt"
 	"github.com/golang/protobuf/proto"
+	uuid "github.com/satori/go.uuid"
 )
 
 type server struct {
@@ -28,9 +32,11 @@ func (s *server) RegisterNewBuild(ctx context.Context, req *protobuf.NewBuildReq
 	}
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket(ProjectBucket)
-		proj := getProject(b, req.GetBuild().GetProjectName())
+		proj := getOrCreateProject(b, req.GetBuild().GetProjectName())
 		proj.Builds = append(proj.Builds, req.Build)
-		storeProject(b, proj)
+		if err := storeProject(b, proj); err != nil {
+			return err
+		}
 		return nil
 	})
 	if err != nil {
@@ -41,8 +47,31 @@ func (s *server) RegisterNewBuild(ctx context.Context, req *protobuf.NewBuildReq
 	return res, nil
 }
 
-func (s *server) GetNextJob(context.Context, *protobuf.NextJobRequest) (*protobuf.NextJobResponse, error) {
-	return nil, nil
+func (s *server) GetNextJob(ctx context.Context, req *protobuf.NextJobRequest) (*protobuf.NextJobResponse, error) {
+	res := &protobuf.NextJobResponse{
+		Header: &protobuf.ResponseHeader{
+			Success: true,
+		},
+		Jobs: []*protobuf.Job{},
+	}
+	err := s.db.View(func(tx *bolt.Tx) error {
+		c := tx.Bucket(JobBucket).Cursor()
+		prefix := []byte(req.Environment)
+		for k, v := c.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = c.Next() {
+			job := &protobuf.Job{}
+			if err := proto.Unmarshal(v, job); err != nil {
+				return err
+			}
+			res.Jobs = append(res.Jobs, job)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Errorf("Failed to load pending jobs: %s", err)
+		addInternalError(res.Header)
+		return res, nil
+	}
+	return res, nil
 }
 
 func (s *server) MarkJobDone(context.Context, *protobuf.JobDoneRequest) (*protobuf.StandardResponse, error) {
@@ -84,7 +113,7 @@ func (s *server) GetBuilds(ctx context.Context, req *protobuf.GetBuildsRequest) 
 	}
 	err := s.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(ProjectBucket)
-		p := getProject(b, req.ProjectName)
+		p := getOrCreateProject(b, req.ProjectName)
 		res.Builds = p.Builds
 		return nil
 	})
@@ -96,9 +125,76 @@ func (s *server) GetBuilds(ctx context.Context, req *protobuf.GetBuildsRequest) 
 	return res, nil
 }
 
-func (s *server) DeployBuild(context.Context, *protobuf.DeployRequest) (*protobuf.DeployResponse, error) {
+func (s *server) DeployBuild(ctx context.Context, req *protobuf.DeployRequest) (*protobuf.DeployResponse, error) {
+	res := &protobuf.DeployResponse{
+		Header: &protobuf.ResponseHeader{
+			Success: true,
+		},
+	}
+	job := &protobuf.Job{
+		Id: uuid.NewV4().String(),
+	}
 
-	return nil, nil
+	// Load and validate existance of entities needed to compose a job
+	err := s.db.View(func(tx *bolt.Tx) error {
+		pb := tx.Bucket(ProjectBucket)
+		eb := tx.Bucket(EnvironmentBucket)
+		proj := getProject(pb, req.Project)
+		if proj == nil {
+			addError(res.Header, "PROJECT_MISSING", "The supplied project does not exist in the database.")
+		} else {
+			for _, build := range proj.Builds {
+				if build.BuildId == req.BuildId {
+					job.Build = build
+					break
+				}
+			}
+			if job.Build == nil {
+				addError(res.Header, "BUILD_MISSING", "The supplied build does not exist in the project.")
+			}
+		}
+
+		env := getEnvironment(eb, req.Environment)
+		if env == nil {
+			addError(res.Header, "ENVIRONMENT_MISSING", "The supplied environment does not exist in the database.")
+		}
+		if (env != nil) && (!environmentHasNamespace(env, req.Namespace)) {
+			addError(res.Header, "ENVIRONMENT_NAMESPACE_MISSING", "The supplied namespace does not exist in the environment.")
+		}
+
+		if !res.Header.Success {
+			return &AlreadyHandledError{}
+		}
+		job.Environment = &protobuf.Environment{
+			Name:       env.Name,
+			Namespaces: []string{req.Namespace},
+		}
+		job.CreatedAt = time.Now().Unix()
+		return nil
+	})
+	if err != nil {
+		return res, nil
+	}
+
+	// overwrite manifest in build in case one was provided in deploy request
+	if manifest, ok := req.Files[deploi.ManifestFile]; ok {
+		job.Build.Files[deploi.ManifestFile] = manifest
+	}
+
+	// write job to database
+	err = s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(JobBucket)
+		if err := storePendingJob(b, job); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		log.Errorf("Failed to store new job: %s", err)
+		addInternalError(res.Header)
+		return res, nil
+	}
+	return res, nil
 }
 
 func (s *server) AutomateDeployment(context.Context, *protobuf.AutomationRequest) (*protobuf.AutomationResponse, error) {
@@ -207,3 +303,8 @@ func addInternalError(header *protobuf.ResponseHeader) {
 		Message: "An internal server error occured",
 	})
 }
+
+type AlreadyHandledError struct {
+}
+
+func (e *AlreadyHandledError) Error() string { return "" }

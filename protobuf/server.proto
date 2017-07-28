@@ -15,6 +15,14 @@ service DeploiServer {
   rpc DeleteEnvironment(DeleteEnvironmentRequest) returns (StandardResponse) {}
 }
 
+message Job {
+  string id = 1;
+  Environment environment = 2;
+  Build build = 3;
+  int64 createdAt = 4;
+  int64 finishedAt = 5;
+}
+
 message Environment {
   string name = 1;
   repeated string namespaces = 2;
@@ -39,10 +47,14 @@ message DeployRequest {
   RequestHeader header = 1;
   string project = 2;
   string buildId = 3;
+  string environment = 4;
+  string namespace = 5;
+  map<string, string> files = 6;
 }
 
 message DeployResponse {
   ResponseHeader header = 1;
+  string jobId = 2;
 }
 
 message AutomationRequest {
@@ -75,10 +87,12 @@ message NewBuildRequest {
 
 message NextJobRequest {
   RequestHeader header = 1;
+  string environment = 2;
 }
 
 message NextJobResponse {
   ResponseHeader header = 1;
+  repeated Job jobs = 2;
 }
 
 message JobDoneRequest {
@@ -92,6 +106,7 @@ message Build {
   string buildSystemURL = 4;
   string branchName = 5;
   int64 createdAt = 6;
+  map<string, string> files = 7;
 }
 
 message Project {
