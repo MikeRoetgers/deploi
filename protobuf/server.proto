@@ -13,6 +13,17 @@ service DeploiServer {
   rpc RegisterEnvironment(RegisterEnvironmentRequest) returns (StandardResponse) {}
   rpc GetEnvironments(StandardRequest) returns (GetEnvironmentResponse) {}
   rpc DeleteEnvironment(DeleteEnvironmentRequest) returns (StandardResponse) {}
+  rpc GetJobs(GetJobsRequest) returns (GetJobsResponse) {}
+}
+
+message GetJobsRequest {
+  RequestHeader header = 1;
+  bool pending = 2;
+}
+
+message GetJobsResponse {
+  ResponseHeader header = 1;
+  repeated Job jobs = 2;
 }
 
 message Job {

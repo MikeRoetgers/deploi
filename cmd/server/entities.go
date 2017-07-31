@@ -121,6 +121,22 @@ func getPendingJob(bucket *bolt.Bucket, id, environment string) *protobuf.Job {
 	return job
 }
 
+func getJobs(bucket *bolt.Bucket) ([]*protobuf.Job, error) {
+	res := []*protobuf.Job{}
+	err := bucket.ForEach(func(_ []byte, v []byte) error {
+		pb := &protobuf.Job{}
+		if err := proto.Unmarshal(v, pb); err != nil {
+			return err
+		}
+		res = append(res, pb)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 func getJob(bucket *bolt.Bucket, id string) *protobuf.Job {
 	val := bucket.Get([]byte(id))
 	job := &protobuf.Job{}

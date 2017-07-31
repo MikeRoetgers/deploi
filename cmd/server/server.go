@@ -321,6 +321,34 @@ func (s *server) DeleteEnvironment(ctx context.Context, req *protobuf.DeleteEnvi
 	return res, nil
 }
 
+func (s *server) GetJobs(ctx context.Context, req *protobuf.GetJobsRequest) (*protobuf.GetJobsResponse, error) {
+	res := &protobuf.GetJobsResponse{
+		Header: &protobuf.ResponseHeader{
+			Success: true,
+		},
+	}
+	err := s.db.View(func(tx *bolt.Tx) error {
+		var b *bolt.Bucket
+		if req.Pending {
+			b = tx.Bucket(JobBucket)
+		} else {
+			b = tx.Bucket(DoneJobBucket)
+		}
+		jobs, err := getJobs(b)
+		if err != nil {
+			return err
+		}
+		res.Jobs = jobs
+		return nil
+	})
+	if err != nil {
+		log.Errorf("Failed to load jobs: %s", err)
+		addInternalError(res.Header)
+		return res, nil
+	}
+	return res, nil
+}
+
 func addError(header *protobuf.ResponseHeader, code, message string) {
 	header.Success = false
 	header.Errors = append(header.Errors, &protobuf.Error{
