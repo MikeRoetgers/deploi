@@ -9,7 +9,9 @@ service DeploiServer {
   rpc GetProjects(StandardRequest) returns (GetProjectsResponse) {}
   rpc GetBuilds(GetBuildsRequest) returns (GetBuildsResponse) {}
   rpc DeployBuild(DeployRequest) returns (DeployResponse) {}
-  rpc AutomateDeployment(AutomationRequest) returns (AutomationResponse) {}
+  rpc RegisterAutomation(RegisterAutomationRequest) returns (StandardResponse) {}
+  rpc DeleteAutomation(DeleteAutomationRequest) returns (StandardResponse) {}
+  rpc GetAutomations(GetAutomationsRequest) returns (GetAutomationsResponse) {}
   rpc RegisterEnvironment(RegisterEnvironmentRequest) returns (StandardResponse) {}
   rpc GetEnvironments(StandardRequest) returns (GetEnvironmentResponse) {}
   rpc DeleteEnvironment(DeleteEnvironmentRequest) returns (StandardResponse) {}
@@ -70,12 +72,36 @@ message DeployResponse {
   string jobId = 2;
 }
 
-message AutomationRequest {
+message RegisterAutomationRequest {
+  RequestHeader header = 1;
+  Automation automation = 2;
+}
+
+message GetAutomationsRequest {
   RequestHeader header = 1;
 }
 
-message AutomationResponse {
+message GetAutomationsResponse {
   ResponseHeader header = 1;
+  repeated Automation automations = 2;
+}
+
+message DeleteAutomationRequest {
+  RequestHeader header = 1;
+  string id = 2;
+}
+
+message Automation {
+  string id = 1;
+  oneof automation {
+    BranchAutomation branchAutomation = 2;
+  }
+}
+
+message BranchAutomation {
+  string project = 1;
+  string branch = 2;
+  Environment environment = 3;
 }
 
 message GetProjectsResponse {

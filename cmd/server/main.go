@@ -16,6 +16,7 @@ var (
 	EnvironmentBucket = []byte("Environments")
 	JobBucket         = []byte("Jobs")
 	DoneJobBucket     = []byte("DoneJobs")
+	AutomationBucket  = []byte("Automation")
 	log               = logging.MustGetLogger("app")
 )
 
@@ -27,7 +28,7 @@ func main() {
 	defer db.Close()
 
 	err = db.Update(func(tx *bolt.Tx) error {
-		buckets := [][]byte{ProjectBucket, EnvironmentBucket, JobBucket, DoneJobBucket}
+		buckets := [][]byte{ProjectBucket, EnvironmentBucket, JobBucket, DoneJobBucket, AutomationBucket}
 		for _, b := range buckets {
 			_, txErr := tx.CreateBucketIfNotExists(b)
 			if txErr != nil {

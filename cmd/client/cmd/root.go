@@ -61,3 +61,17 @@ func initConfig() {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 }
+
+func handleGRPCFeedback(err error, header *protobuf.ResponseHeader) {
+	if err != nil {
+		fmt.Printf("RPC request failed: %s", err)
+		os.Exit(1)
+	}
+	if !header.Success {
+		fmt.Println("Request was unsuccessful")
+		for _, er := range header.Errors {
+			fmt.Printf("Code: %s | Message: %s\n", er.Code, er.Message)
+		}
+		os.Exit(1)
+	}
+}

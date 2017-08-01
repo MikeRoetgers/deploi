@@ -149,3 +149,39 @@ func getJob(bucket *bolt.Bucket, id string) *protobuf.Job {
 	}
 	return job
 }
+
+func storeAutomation(bucket *bolt.Bucket, a *protobuf.Automation) error {
+	val, err := proto.Marshal(a)
+	if err != nil {
+		return fmt.Errorf("Failed to marshal automation: %s", err)
+	}
+	if err = bucket.Put([]byte(a.Id), val); err != nil {
+		return fmt.Errorf("Failed to store automation: %s", err)
+	}
+	return nil
+}
+
+func getAutomations(bucket *bolt.Bucket) (automations []*protobuf.Automation, err error) {
+	err = bucket.ForEach(func(_ []byte, v []byte) error {
+		a := &protobuf.Automation{}
+		if err := proto.Unmarshal(v, a); err != nil {
+			return err
+		}
+		automations = append(automations, a)
+		return nil
+	})
+	return
+}
+
+func getAutomation(bucket *bolt.Bucket, id string) *protobuf.Automation {
+	val := bucket.Get([]byte(id))
+	a := &protobuf.Automation{}
+	if len(val) == 0 {
+		return nil
+	}
+	if err := proto.Unmarshal(val, a); err != nil {
+		log.Errorf("Failed to unmarshal automation %s. Error: %s", id, err)
+		return nil
+	}
+	return a
+}

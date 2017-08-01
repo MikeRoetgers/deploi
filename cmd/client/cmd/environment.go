@@ -124,14 +124,4 @@ func init() {
 
 	environmentDeleteCmd.Flags().StringP("name", "n", "", "Name of the environment")
 	environmentDeleteCmd.Flags().StringArrayP("namespace", "", []string{}, "Namespace(s) in the environment")
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// environmentCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// environmentCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

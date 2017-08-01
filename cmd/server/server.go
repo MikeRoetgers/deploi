@@ -231,8 +231,74 @@ func (s *server) DeployBuild(ctx context.Context, req *protobuf.DeployRequest) (
 	return res, nil
 }
 
-func (s *server) AutomateDeployment(context.Context, *protobuf.AutomationRequest) (*protobuf.AutomationResponse, error) {
-	return nil, nil
+func (s *server) RegisterAutomation(ctx context.Context, req *protobuf.RegisterAutomationRequest) (*protobuf.StandardResponse, error) {
+	res := &protobuf.StandardResponse{
+		Header: &protobuf.ResponseHeader{
+			Success: true,
+		},
+	}
+	automation := req.Automation
+	automation.Id = uuid.NewV4().String()
+	err := s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(AutomationBucket)
+		if err := storeAutomation(b, automation); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		log.Errorf("Failed to store automation: %s", err)
+		addInternalError(res.Header)
+		return res, nil
+	}
+	return res, nil
+}
+func (s *server) DeleteAutomation(ctx context.Context, req *protobuf.DeleteAutomationRequest) (*protobuf.StandardResponse, error) {
+	res := &protobuf.StandardResponse{
+		Header: &protobuf.ResponseHeader{
+			Success: true,
+		},
+	}
+	err := s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(AutomationBucket)
+		a := getAutomation(b, req.Id)
+		if a == nil {
+			addError(res.Header, "AUTOMATION_MISSING", "The provided automation id is unknown.")
+			return nil
+		}
+		if err := b.Delete([]byte(req.Id)); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		log.Errorf("Failed to delete automation %s: %s", req.Id, err)
+		addInternalError(res.Header)
+		return res, nil
+	}
+	return res, nil
+}
+func (s *server) GetAutomations(ctx context.Context, req *protobuf.GetAutomationsRequest) (*protobuf.GetAutomationsResponse, error) {
+	res := &protobuf.GetAutomationsResponse{
+		Header: &protobuf.ResponseHeader{
+			Success: true,
+		},
+	}
+	err := s.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket(AutomationBucket)
+		automations, err := getAutomations(b)
+		if err != nil {
+			return err
+		}
+		res.Automations = automations
+		return nil
+	})
+	if err != nil {
+		log.Errorf("Failed to load automations: %s", err)
+		addInternalError(res.Header)
+		return res, nil
+	}
+	return res, nil
 }
 
 func (s *server) RegisterEnvironment(ctx context.Context, req *protobuf.RegisterEnvironmentRequest) (*protobuf.StandardResponse, error) {
