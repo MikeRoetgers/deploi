@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/MikeRoetgers/deploi"
 	"github.com/MikeRoetgers/deploi/protobuf"
@@ -10,16 +9,26 @@ import (
 
 type agent struct {
 	deploiClient protobuf.DeploiServerClient
+	executor     JobExecutor
 }
 
-func newAgent(c protobuf.DeploiServerClient) *agent {
+func newAgent(c protobuf.DeploiServerClient, e JobExecutor) *agent {
 	return &agent{
 		deploiClient: c,
+		executor:     e,
 	}
 }
 
+type JobExecutor interface {
+	ProcessJob(*protobuf.Job) ([]byte, error)
+}
+
 func (a *agent) processJob(job *protobuf.Job) error {
-	fmt.Printf("ID: %s\nProject: %s\nBuild: %s\nEnv: %s\n\n", job.Id, job.Build.ProjectName, job.Build.BuildId, job.Environment.Name)
+	output, err := a.executor.ProcessJob(job)
+	if err != nil {
+		log.Errorf("Job: %s | Error: %s", job.Id, err)
+	}
+	job.Output = output
 	req := &protobuf.JobDoneRequest{
 		Header: &protobuf.RequestHeader{},
 		Job:    job,

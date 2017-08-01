@@ -90,6 +90,7 @@ func (s *server) MarkJobDone(ctx context.Context, req *protobuf.JobDoneRequest) 
 			return &AlreadyHandledError{}
 		}
 		job.FinishedAt = time.Now().Unix()
+		job.Output = req.Job.Output
 		if err := storeJob(djb, job); err != nil {
 			log.Errorf("Failed to store job %s in done bucket: %s", job.Id, err)
 			addInternalError(res.Header)
@@ -329,10 +330,19 @@ func (s *server) GetJobs(ctx context.Context, req *protobuf.GetJobsRequest) (*pr
 	}
 	err := s.db.View(func(tx *bolt.Tx) error {
 		var b *bolt.Bucket
-		if req.Pending {
+		if req.Pending && req.Id == "" {
 			b = tx.Bucket(JobBucket)
 		} else {
 			b = tx.Bucket(DoneJobBucket)
+		}
+		if req.Id != "" {
+			job := getJob(b, req.Id)
+			if job == nil {
+				addError(res.Header, "JOB_NOT_FOUND", "Job could not be found in the database")
+				return nil
+			}
+			res.Jobs = []*protobuf.Job{job}
+			return nil
 		}
 		jobs, err := getJobs(b)
 		if err != nil {

@@ -14,6 +14,7 @@ import (
 
 var environment = flag.String("environment", "", "Name of the environment")
 var deploidHost = flag.String("host", "127.0.0.1:8000", "host:port of the deploid")
+var executor = flag.String("executor", "kubectl", "Configures how the agent communicates with the cluster")
 var namespaces []string
 var log = logging.MustGetLogger("app")
 
@@ -36,7 +37,12 @@ func main() {
 	}
 	defer grpcConn.Close()
 	deploiClient := protobuf.NewDeploiServerClient(grpcConn)
-	a := newAgent(deploiClient)
+	var je JobExecutor
+	switch *executor {
+	case "kubectl":
+		je = &kubectlExecutor{}
+	}
+	a := newAgent(deploiClient, je)
 	for {
 		jobs, err := a.fetchJobs()
 		if err != nil {
