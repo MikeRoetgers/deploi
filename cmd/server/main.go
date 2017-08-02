@@ -47,7 +47,7 @@ func main() {
 		for _, b := range buckets {
 			_, txErr := tx.CreateBucketIfNotExists(b)
 			if txErr != nil {
-				return fmt.Errorf("creating bucket failed: %s", err)
+				return fmt.Errorf("creating bucket failed: %s", txErr)
 			}
 		}
 		return nil
@@ -61,6 +61,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to start daemon. Reason: %v", err)
 	}
+	go enforceRetention(db)
 	grpcServer := grpc.NewServer()
 	protobuf.RegisterDeploiServerServer(grpcServer, s)
 	grpcServer.Serve(lis)
