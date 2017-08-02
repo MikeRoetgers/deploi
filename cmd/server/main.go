@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net"
+	"os"
+	"path/filepath"
 
 	"google.golang.org/grpc"
 
@@ -18,12 +20,25 @@ var (
 	DoneJobBucket     = []byte("DoneJobs")
 	AutomationBucket  = []byte("Automation")
 	log               = logging.MustGetLogger("app")
+	config            *Config
 )
 
 func main() {
+	var err error
+	configFile := os.Getenv("DEPLOID_CONFIG")
+	if configFile == "" {
+		config = newConfig()
+	} else {
+		if config, err = newConfigFromFile(configFile); err != nil {
+			log.Fatalf("Failed to start deamon. Reason: %s", err)
+		}
+	}
+	if err = os.MkdirAll(filepath.Base(config.Database.Path), os.FileMode(int(0755))); err != nil {
+		log.Fatalf("Failed to start daemon. Reason: Could not create database path. %s", err)
+	}
 	db, err := bolt.Open("my.db", 0600, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to start daemon. Reason: %s", err)
 	}
 	defer db.Close()
 
@@ -38,14 +53,13 @@ func main() {
 		return nil
 	})
 	if err != nil {
-		log.Fatalf("Failed to initiate database: %s", err)
+		log.Fatalf("Failed to start daemon. Reason: %s", err)
 	}
 
 	s := newServer(db)
-
-	lis, err := net.Listen("tcp", ":8000")
+	lis, err := net.Listen("tcp", config.ListenAddr)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatalf("Failed to start daemon. Reason: %v", err)
 	}
 	grpcServer := grpc.NewServer()
 	protobuf.RegisterDeploiServerServer(grpcServer, s)

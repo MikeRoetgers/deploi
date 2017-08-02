@@ -1,0 +1,13 @@
+{
+  "listen": ":8000",
+  "database": {
+    "path": "/var/lib/deploid/deploid.db"
+  },
+  "retention": {
+    "jobs": 200,
+    "builds": 50,
+    "buildsPerProject": {
+      "exampleProject": 100
+    }
+  }
+}
