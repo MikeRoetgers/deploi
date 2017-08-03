@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"github.com/MikeRoetgers/deploi/protobuf"
@@ -13,9 +12,6 @@ import (
 var projectCmd = &cobra.Command{
 	Use:   "project",
 	Short: "Manages software projects",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("project called")
-	},
 }
 
 var projectListCmd = &cobra.Command{
