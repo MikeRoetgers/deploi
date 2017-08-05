@@ -38,7 +38,7 @@ func main() {
 	if err = os.MkdirAll(filepath.Base(config.Database.Path), os.FileMode(int(0755))); err != nil {
 		log.Fatalf("Failed to start daemon. Reason: Could not create database path. %s", err)
 	}
-	db, err := bolt.Open("my.db", 0600, nil)
+	db, err := bolt.Open(config.Database.Path, 0600, nil)
 	if err != nil {
 		log.Fatalf("Failed to start daemon. Reason: %s", err)
 	}
