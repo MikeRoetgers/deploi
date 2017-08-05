@@ -8,10 +8,10 @@
   version = "v1.3.1"
 
 [[projects]]
-  name = "github.com/fsnotify/fsnotify"
+  name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
-  revision = "629574ca2a5df945712d3079857300b5e4da0236"
-  version = "v1.4.2"
+  revision = "d2709f9f1f31ebcda9651b03077758c1f3a0018c"
+  version = "v3.0.0"
 
 [[projects]]
   branch = "master"
@@ -20,10 +20,10 @@
   revision = "0a4f71a498b7c4812f64969510bcb4eca251e33a"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/hashicorp/hcl"
-  packages = [".","hcl/ast","hcl/parser","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token"]
-  revision = "392dba7d905ed5d04a5794ba89f558b27e2ba1ca"
+  name = "github.com/imdario/mergo"
+  packages = ["."]
+  revision = "3e95a51e0639b4cf372f2ccf74c86749d747fbdc"
+  version = "0.2.2"
 
 [[projects]]
   branch = "master"
@@ -32,10 +32,10 @@
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
 
 [[projects]]
-  name = "github.com/magiconair/properties"
+  branch = "master"
+  name = "github.com/miquella/ask"
   packages = ["."]
-  revision = "be5ece7dd465ab0765a9682137865547526d1dfb"
-  version = "v1.7.3"
+  revision = "486a722fa4cdb033d35a501d54116b645e139ef3"
 
 [[projects]]
   branch = "master"
@@ -44,39 +44,15 @@
   revision = "b8bc1bf767474819792c23f32d8286a45736f1c6"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/mitchellh/mapstructure"
-  packages = ["."]
-  revision = "d0303fe809921458f417bcf828397a65db30a7e4"
-
-[[projects]]
   name = "github.com/op/go-logging"
   packages = ["."]
   revision = "b2cb9fa56473e98db8caba80237377e83fe44db5"
   version = "v1"
 
 [[projects]]
-  name = "github.com/pelletier/go-buffruneio"
+  name = "github.com/satori/go.uuid"
   packages = ["."]
-  revision = "c37440a7cf42ac63b919c752ca73a85067e05992"
-  version = "v0.2.0"
-
-[[projects]]
-  name = "github.com/pelletier/go-toml"
-  packages = ["."]
-  revision = "5ccdfb18c776b740aecaf085c4d9a2779199c279"
-  version = "v1.0.0"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/spf13/afero"
-  packages = [".","mem"]
-  revision = "9be650865eab0c12963d8753212f4f9c66cdcf12"
-
-[[projects]]
-  name = "github.com/spf13/cast"
-  packages = ["."]
-  revision = "acbeb36b902d72a7a4c18e8f3241075e7ab763e4"
+  revision = "879c5887cd475cd7864858769793b2ceb0d44feb"
   version = "v1.1.0"
 
 [[projects]]
@@ -86,12 +62,6 @@
   revision = "34594c771f2c18301dc152640ad40ece28795373"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/spf13/jwalterweatherman"
-  packages = ["."]
-  revision = "0efa5202c04663c757d84f90f5219c1250baf94f"
-
-[[projects]]
   name = "github.com/spf13/pflag"
   packages = ["."]
   revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
@@ -99,9 +69,9 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/spf13/viper"
-  packages = ["."]
-  revision = "25b30aa063fc18e48662b86996252eabdcf2f0c7"
+  name = "golang.org/x/crypto"
+  packages = ["bcrypt","blowfish"]
+  revision = "42ff06aea7c329876e5a0fe94acc96902accf0ad"
 
 [[projects]]
   branch = "master"
@@ -133,15 +103,9 @@
   revision = "172ccacff3cfbddedcf1ba5ea06cda943bc976c1"
   version = "v1.5.0"
 
-[[projects]]
-  branch = "v2"
-  name = "gopkg.in/yaml.v2"
-  packages = ["."]
-  revision = "25c4ec802a7d637f88d584ab26798e94ad14c13b"
-
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "798b8a79e77fc57dcde72da1a5d518aa37a724d6ab36f6fdf74c6aefc06a2eab"
+  inputs-digest = "270aa44cb2a0a1720a7dfeaa04b0b97d646af55228b921208ac7e5dc20793ead"
   solver-name = "gps-cdcl"
   solver-version = 1
