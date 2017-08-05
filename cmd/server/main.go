@@ -18,9 +18,11 @@ var (
 	EnvironmentBucket = []byte("Environments")
 	JobBucket         = []byte("Jobs")
 	DoneJobBucket     = []byte("DoneJobs")
-	AutomationBucket  = []byte("Automation")
+	AutomationBucket  = []byte("Automations")
+	UserBucket        = []byte("Users")
 	log               = logging.MustGetLogger("app")
 	config            *Config
+	JWTKey            = []byte("NbZMecQ3UcgzsnzmNaHTTUTfH6w3XB")
 )
 
 func main() {
@@ -43,7 +45,7 @@ func main() {
 	defer db.Close()
 
 	err = db.Update(func(tx *bolt.Tx) error {
-		buckets := [][]byte{ProjectBucket, EnvironmentBucket, JobBucket, DoneJobBucket, AutomationBucket}
+		buckets := [][]byte{ProjectBucket, EnvironmentBucket, JobBucket, DoneJobBucket, AutomationBucket, UserBucket}
 		for _, b := range buckets {
 			_, txErr := tx.CreateBucketIfNotExists(b)
 			if txErr != nil {

@@ -34,7 +34,7 @@ var environmentListCmd = &cobra.Command{
 			}
 			os.Exit(1)
 		}
-		cmd.Printf("Name\tNamespaces\n")
+		cmd.Printf("NAME\tNAMESPACES\n")
 		for _, env := range res.Environments {
 			cmd.Printf("%s\t%s\n", env.Name, strings.Join(env.Namespaces, ","))
 		}

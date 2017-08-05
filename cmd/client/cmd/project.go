@@ -18,19 +18,21 @@ var projectListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists all projects",
 	Run: func(cmd *cobra.Command, args []string) {
-		res, err := DeploiClient.GetProjects(context.Background(), &protobuf.StandardRequest{})
+		res, err := DeploiClient.GetProjects(context.Background(), &protobuf.StandardRequest{
+			Header: getRequestHeader(),
+		})
 		if err != nil {
 			cmd.Printf("Failed to connect to deploid: %s", err)
 			os.Exit(1)
 		}
 		if !res.Header.Success {
-			cmd.Printf("Failed to list projects")
+			cmd.Println("Failed to list projects")
 			for _, er := range res.Header.Errors {
 				cmd.Printf("Code: %s | Message: %s\n", er.Code, er.Message)
 			}
 			os.Exit(1)
 		}
-		cmd.Printf("Projects\n")
+		cmd.Printf("PROJECTS\n")
 		for _, p := range res.Projects {
 			cmd.Printf("%s\n", p)
 		}

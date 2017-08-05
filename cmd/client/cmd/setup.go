@@ -1,11 +1,14 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 
 	"github.com/MikeRoetgers/deploi/cmd/client/config"
+	"github.com/MikeRoetgers/deploi/protobuf"
+	"github.com/miquella/ask"
 	"github.com/spf13/cobra"
 )
 
@@ -50,11 +53,31 @@ var setupConfigCmd = &cobra.Command{
 	},
 }
 
+var setupUserCmd = &cobra.Command{
+	Use:   "user [email]",
+	Short: "Register a new user",
+	Run: func(cmd *cobra.Command, args []string) {
+		email := args[0]
+		pw, err := ask.HiddenAsk("Password: ")
+		if err != nil {
+			log.Fatal(err)
+		}
+		req := &protobuf.CreateUserRequest{
+			Email:    email,
+			Password: pw,
+		}
+		res, err := DeploiClient.CreateUser(context.Background(), req)
+		handleGRPCFeedback(err, res.Header)
+	},
+}
+
 func init() {
 	RootCmd.AddCommand(setupCmd)
-	setupCmd.AddCommand(setupConfigCmd)
+	setupCmd.AddCommand(setupConfigCmd, setupUserCmd)
 
 	setupConfigCmd.Flags().StringP("location", "l", config.GetDefaultConfLocation(), "Location of the config file on your computer")
 	setupConfigCmd.Flags().String("host", "localhost:8000", "On which [IP]:[PORT] does deploid listen?")
 	setupConfigCmd.Flags().BoolP("overwrite", "o", false, "Overwrite config file if it already exists in given location")
+
+	setupUserCmd.Args = cobra.ExactArgs(1)
 }

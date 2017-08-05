@@ -16,6 +16,31 @@ service DeploiServer {
   rpc GetEnvironments(StandardRequest) returns (GetEnvironmentResponse) {}
   rpc DeleteEnvironment(DeleteEnvironmentRequest) returns (StandardResponse) {}
   rpc GetJobs(GetJobsRequest) returns (GetJobsResponse) {}
+  rpc Login(LoginRequest) returns (LoginResponse) {}
+  rpc CreateUser(CreateUserRequest) returns (StandardResponse) {}
+}
+
+message CreateUserRequest {
+  RequestHeader header = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message User {
+  string email = 1;
+  bytes passwordHash = 2;
+  int64 createdAt = 3;
+}
+
+message LoginRequest {
+  RequestHeader header = 1;
+  string username = 2;
+  string password = 3;
+}
+
+message LoginResponse {
+  ResponseHeader header = 1;
+  string token = 2;
 }
 
 message GetJobsRequest {

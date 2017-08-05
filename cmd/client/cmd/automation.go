@@ -39,7 +39,7 @@ var automationListCmd = &cobra.Command{
 		res, err := DeploiClient.GetAutomations(context.Background(), req)
 		handleGRPCFeedback(err, res.Header)
 		w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
-		fmt.Fprintln(w, "ID\tProject\tEnvironment\tNamespace\tType\tDetails")
+		fmt.Fprintln(w, "ID\tPROJECT\tENVIRONMENT\tNAMESPACE\tTYPE\tDETAILS")
 		for _, a := range res.Automations {
 			switch auto := a.Automation.(type) {
 			case *protobuf.Automation_BranchAutomation:

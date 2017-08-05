@@ -185,3 +185,27 @@ func getAutomation(bucket *bolt.Bucket, id string) *protobuf.Automation {
 	}
 	return a
 }
+
+func getUser(bucket *bolt.Bucket, email string) *protobuf.User {
+	val := bucket.Get([]byte(email))
+	u := &protobuf.User{}
+	if len(val) == 0 {
+		return nil
+	}
+	if err := proto.Unmarshal(val, u); err != nil {
+		log.Errorf("Failed to unmarshal user %s. Error: %s", email, err)
+		return nil
+	}
+	return u
+}
+
+func storeUser(bucket *bolt.Bucket, user *protobuf.User) error {
+	val, err := proto.Marshal(user)
+	if err != nil {
+		return fmt.Errorf("Failed to marshal user: %s", err)
+	}
+	if err = bucket.Put([]byte(user.Email), val); err != nil {
+		return fmt.Errorf("Failed to store user: %s", err)
+	}
+	return nil
+}

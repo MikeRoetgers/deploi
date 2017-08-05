@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
 
 	"github.com/MikeRoetgers/deploi"
 	"github.com/MikeRoetgers/deploi/protobuf"
 	"github.com/boltdb/bolt"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/golang/protobuf/proto"
 	uuid "github.com/satori/go.uuid"
 )
@@ -29,6 +31,10 @@ func (s *server) RegisterNewBuild(ctx context.Context, req *protobuf.NewBuildReq
 		Header: &protobuf.ResponseHeader{
 			Success: true,
 		},
+	}
+	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
+		addErrors(res.Header, []*protobuf.Error{pbErr})
+		return res, nil
 	}
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket(ProjectBucket)
@@ -54,6 +60,10 @@ func (s *server) GetNextJobs(ctx context.Context, req *protobuf.NextJobRequest) 
 		},
 		Jobs: []*protobuf.Job{},
 	}
+	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
+		addErrors(res.Header, []*protobuf.Error{pbErr})
+		return res, nil
+	}
 	err := s.db.View(func(tx *bolt.Tx) error {
 		c := tx.Bucket(JobBucket).Cursor()
 		prefix := []byte(req.Environment)
@@ -75,11 +85,14 @@ func (s *server) GetNextJobs(ctx context.Context, req *protobuf.NextJobRequest) 
 }
 
 func (s *server) MarkJobDone(ctx context.Context, req *protobuf.JobDoneRequest) (*protobuf.StandardResponse, error) {
-	log.Debugf("Marking job %s as done", req.Job.Id)
 	res := &protobuf.StandardResponse{
 		Header: &protobuf.ResponseHeader{
 			Success: true,
 		},
+	}
+	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
+		addErrors(res.Header, []*protobuf.Error{pbErr})
+		return res, nil
 	}
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket(JobBucket)
@@ -108,7 +121,6 @@ func (s *server) MarkJobDone(ctx context.Context, req *protobuf.JobDoneRequest) 
 		addInternalError(res.Header)
 		return res, nil
 	}
-	log.Debugf("Marking job %s worked", req.Job.Id)
 	return res, nil
 }
 
@@ -118,6 +130,10 @@ func (s *server) GetProjects(ctx context.Context, req *protobuf.StandardRequest)
 			Success: true,
 		},
 		Projects: []string{},
+	}
+	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
+		addErrors(res.Header, []*protobuf.Error{pbErr})
+		return res, nil
 	}
 	err := s.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(ProjectBucket)
@@ -145,6 +161,10 @@ func (s *server) GetBuilds(ctx context.Context, req *protobuf.GetBuildsRequest) 
 		},
 		Builds: []*protobuf.Build{},
 	}
+	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
+		addErrors(res.Header, []*protobuf.Error{pbErr})
+		return res, nil
+	}
 	err := s.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(ProjectBucket)
 		p := getOrCreateProject(b, req.ProjectName)
@@ -164,6 +184,10 @@ func (s *server) DeployBuild(ctx context.Context, req *protobuf.DeployRequest) (
 		Header: &protobuf.ResponseHeader{
 			Success: true,
 		},
+	}
+	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
+		addErrors(res.Header, []*protobuf.Error{pbErr})
+		return res, nil
 	}
 	job := &protobuf.Job{
 		Id: uuid.NewV4().String(),
@@ -237,6 +261,10 @@ func (s *server) RegisterAutomation(ctx context.Context, req *protobuf.RegisterA
 			Success: true,
 		},
 	}
+	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
+		addErrors(res.Header, []*protobuf.Error{pbErr})
+		return res, nil
+	}
 	automation := req.Automation
 	automation.Id = uuid.NewV4().String()
 	err := s.db.Update(func(tx *bolt.Tx) error {
@@ -258,6 +286,10 @@ func (s *server) DeleteAutomation(ctx context.Context, req *protobuf.DeleteAutom
 		Header: &protobuf.ResponseHeader{
 			Success: true,
 		},
+	}
+	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
+		addErrors(res.Header, []*protobuf.Error{pbErr})
+		return res, nil
 	}
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket(AutomationBucket)
@@ -284,6 +316,10 @@ func (s *server) GetAutomations(ctx context.Context, req *protobuf.GetAutomation
 			Success: true,
 		},
 	}
+	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
+		addErrors(res.Header, []*protobuf.Error{pbErr})
+		return res, nil
+	}
 	err := s.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(AutomationBucket)
 		automations, err := getAutomations(b)
@@ -307,6 +343,10 @@ func (s *server) RegisterEnvironment(ctx context.Context, req *protobuf.Register
 			Success: true,
 		},
 	}
+	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
+		addErrors(res.Header, []*protobuf.Error{pbErr})
+		return res, nil
+	}
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket(EnvironmentBucket)
 		env := getOrCreateEnvironment(b, req.Environment.Name)
@@ -324,12 +364,16 @@ func (s *server) RegisterEnvironment(ctx context.Context, req *protobuf.Register
 	return res, nil
 }
 
-func (s *server) GetEnvironments(context.Context, *protobuf.StandardRequest) (*protobuf.GetEnvironmentResponse, error) {
+func (s *server) GetEnvironments(ctx context.Context, req *protobuf.StandardRequest) (*protobuf.GetEnvironmentResponse, error) {
 	res := &protobuf.GetEnvironmentResponse{
 		Header: &protobuf.ResponseHeader{
 			Success: true,
 		},
 		Environments: []*protobuf.Environment{},
+	}
+	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
+		addErrors(res.Header, []*protobuf.Error{pbErr})
+		return res, nil
 	}
 	err := s.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(EnvironmentBucket)
@@ -356,6 +400,10 @@ func (s *server) DeleteEnvironment(ctx context.Context, req *protobuf.DeleteEnvi
 		Header: &protobuf.ResponseHeader{
 			Success: true,
 		},
+	}
+	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
+		addErrors(res.Header, []*protobuf.Error{pbErr})
+		return res, nil
 	}
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket(EnvironmentBucket)
@@ -394,6 +442,10 @@ func (s *server) GetJobs(ctx context.Context, req *protobuf.GetJobsRequest) (*pr
 			Success: true,
 		},
 	}
+	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
+		addErrors(res.Header, []*protobuf.Error{pbErr})
+		return res, nil
+	}
 	err := s.db.View(func(tx *bolt.Tx) error {
 		var b *bolt.Bucket
 		if req.Pending && req.Id == "" {
@@ -425,12 +477,92 @@ func (s *server) GetJobs(ctx context.Context, req *protobuf.GetJobsRequest) (*pr
 	return res, nil
 }
 
+func (s *server) CreateUser(ctx context.Context, req *protobuf.CreateUserRequest) (*protobuf.StandardResponse, error) {
+	res := &protobuf.StandardResponse{
+		Header: &protobuf.ResponseHeader{
+			Success: true,
+		},
+	}
+	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
+		addErrors(res.Header, []*protobuf.Error{pbErr})
+		return res, nil
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), 10)
+	if err != nil {
+		log.Errorf("Failed to hash password: %s", err)
+		addInternalError(res.Header)
+		return res, nil
+	}
+	err = s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(UserBucket)
+		u := getUser(b, req.Email)
+		if u != nil {
+			addError(res.Header, "USER_ALREADY_EXISTS", "The given user does already exist")
+			return AlreadyHandledError{}
+		}
+		user := &protobuf.User{
+			Email:        req.Email,
+			PasswordHash: hash,
+		}
+		if err := storeUser(b, user); err != nil {
+			return fmt.Errorf("Failed to store new user: %s", err)
+		}
+		return nil
+	})
+	if handleTxError(err, res.Header) {
+		return res, nil
+	}
+	return res, nil
+}
+
+func (s *server) Login(ctx context.Context, req *protobuf.LoginRequest) (*protobuf.LoginResponse, error) {
+	res := &protobuf.LoginResponse{
+		Header: &protobuf.ResponseHeader{
+			Success: true,
+		},
+	}
+	err := s.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket(UserBucket)
+		u := getUser(b, req.Username)
+		if u == nil {
+			addError(res.Header, "USER_MISSING", "The given user does not exist.")
+			return AlreadyHandledError{}
+		}
+		if err := bcrypt.CompareHashAndPassword(u.PasswordHash, []byte(req.Password)); err != nil {
+			addError(res.Header, "PASSWORD_WRONG", "The supplied password does not match.")
+			return AlreadyHandledError{}
+		}
+		claims := DeploidClaims{
+			u.Email,
+			jwt.StandardClaims{
+				ExpiresAt: time.Now().AddDate(0, 3, 0).Unix(),
+			},
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		signed, err := token.SignedString(JWTKey)
+		if err != nil {
+			return fmt.Errorf("Failed to sign JWT token: %s", err)
+		}
+		res.Token = signed
+		return nil
+	})
+	if handleTxError(err, res.Header) {
+		return res, nil
+	}
+	return res, nil
+}
+
 func addError(header *protobuf.ResponseHeader, code, message string) {
 	header.Success = false
 	header.Errors = append(header.Errors, &protobuf.Error{
 		Code:    code,
 		Message: message,
 	})
+}
+
+func addErrors(header *protobuf.ResponseHeader, errs []*protobuf.Error) {
+	header.Success = false
+	header.Errors = append(header.Errors, errs...)
 }
 
 func addInternalError(header *protobuf.ResponseHeader) {
@@ -444,4 +576,19 @@ func addInternalError(header *protobuf.ResponseHeader) {
 type AlreadyHandledError struct {
 }
 
-func (e *AlreadyHandledError) Error() string { return "" }
+func (e AlreadyHandledError) Error() string { return "" }
+
+func handleTxError(err error, header *protobuf.ResponseHeader) bool {
+	// continue program flow
+	if err == nil {
+		return false
+	}
+	// stop program flow but no need for logging
+	if _, ok := err.(AlreadyHandledError); ok {
+		return true
+	}
+	// stop program flow and log error
+	log.Errorf("Transaction error: %s", err)
+	addInternalError(header)
+	return true
+}

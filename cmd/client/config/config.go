@@ -9,6 +9,10 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 )
 
+var (
+	DeploiConfiguration *Configuration
+)
+
 type Configuration struct {
 	Location string
 	Host     string

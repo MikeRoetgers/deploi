@@ -1,10 +1,14 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"os"
 
+	"github.com/MikeRoetgers/deploi/cmd/client/config"
 	"github.com/MikeRoetgers/deploi/protobuf"
+	"github.com/miquella/ask"
 	"github.com/spf13/cobra"
 )
 
@@ -18,6 +22,34 @@ var RootCmd = &cobra.Command{
 	Long:  ``,
 }
 
+var rootLoginCmd = &cobra.Command{
+	Use:   "login [username]",
+	Short: "Log into your account",
+	Long: `Log into your account
+
+The username is typically your email address.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		pw, err := ask.HiddenAsk("Password: ")
+		if err != nil {
+			log.Fatal(err)
+		}
+		if pw == "" {
+			log.Fatal("You have to enter your password")
+		}
+		req := &protobuf.LoginRequest{
+			Header:   &protobuf.RequestHeader{},
+			Username: args[0],
+			Password: pw,
+		}
+		res, err := DeploiClient.Login(context.Background(), req)
+		handleGRPCFeedback(err, res.Header)
+		config.DeploiConfiguration.Token = res.Token
+		if err := config.WriteConfig(config.DeploiConfiguration); err != nil {
+			log.Fatal(err)
+		}
+	},
+}
+
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
@@ -29,6 +61,8 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	RootCmd.AddCommand(rootLoginCmd)
+	rootLoginCmd.Args = cobra.ExactArgs(1)
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -69,5 +103,11 @@ func handleGRPCFeedback(err error, header *protobuf.ResponseHeader) {
 			fmt.Printf("Code: %s | Message: %s\n", er.Code, er.Message)
 		}
 		os.Exit(1)
+	}
+}
+
+func getRequestHeader() *protobuf.RequestHeader {
+	return &protobuf.RequestHeader{
+		Token: config.DeploiConfiguration.Token,
 	}
 }

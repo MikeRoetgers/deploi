@@ -72,9 +72,9 @@ var jobListCmd = &cobra.Command{
 		} else {
 			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
 			if showID {
-				fmt.Fprintln(w, "ID\tProject\tBuild\tEnvironment\tNamespace\tStarted")
+				fmt.Fprintln(w, "ID\tPROJECT\tBUILD\tENVIRONMENT\tNAMESPACE\tSTARTED")
 			} else {
-				fmt.Fprintln(w, "Project\tBuild\tEnvironment\tNamespace\tStarted")
+				fmt.Fprintln(w, "PROJECT\tBUILD\tENVIRONMENT\tNAMESPACE\tSTARTED")
 			}
 
 			for _, j := range res.Jobs {

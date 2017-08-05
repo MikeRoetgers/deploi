@@ -11,13 +11,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-var (
-	deploiConfiguration *config.Configuration
-)
-
 func main() {
-	deploiConfiguration = getConfig()
-	grpcConn, err := grpc.Dial(deploiConfiguration.Host, grpc.WithInsecure())
+	config.DeploiConfiguration = getConfig()
+	grpcConn, err := grpc.Dial(config.DeploiConfiguration.Host, grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

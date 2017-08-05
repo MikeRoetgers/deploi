@@ -105,13 +105,13 @@ var buildListCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		if !res.Header.Success {
-			cmd.Printf("Failed to list projects")
+			cmd.Println("Failed to list projects")
 			for _, er := range res.Header.Errors {
 				cmd.Printf("Code: %s | Message: %s\n", er.Code, er.Message)
 			}
 			os.Exit(1)
 		}
-		cmd.Printf("Build\tBranch\tURL\n")
+		cmd.Printf("BUILD\tBRANCH\tURL\n")
 		for _, b := range res.Builds {
 			cmd.Printf("%s\t%s\t%s\n", b.BuildId, b.BranchName, b.BuildURL)
 		}
