@@ -4,10 +4,9 @@ metadata:
   name: deploi-agent
   namespace: kube-system
   labels:
-    name: deploi
+    app: deploi-agent
 spec:
   containers:
   - name: deploi-agent
     image: registry.cargo.one:5000/deploi-agent:latest
-    imagePullPolicy: Never
-    args: ["-host", "192.168.200.187:8000", "-environment", "mike", "-namespaces", "test" ]
+    args: ["-host", "deploid.cargo.one:3375", "-environment", "staging", "-namespaces", "default" ]
