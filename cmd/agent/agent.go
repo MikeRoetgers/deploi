@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 
-	"github.com/MikeRoetgers/deploi"
 	"github.com/MikeRoetgers/deploi/protobuf"
 )
 
@@ -38,7 +37,7 @@ func (a *agent) processJob(job *protobuf.Job) error {
 		return err
 	}
 	if !res.Header.Success {
-		return deploi.NewResponseError(res.Header)
+		return newResponseError(res.Header)
 	}
 	return nil
 }
@@ -53,7 +52,7 @@ func (a *agent) fetchJobs() ([]*protobuf.Job, error) {
 		return nil, err
 	}
 	if !res.Header.Success {
-		return nil, deploi.NewResponseError(res.Header)
+		return nil, newResponseError(res.Header)
 	}
 	return res.Jobs, nil
 }
