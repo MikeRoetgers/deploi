@@ -115,8 +115,8 @@ func deployBuild(project, buildId, env, namespace string) error {
 		Namespace:   namespace,
 	}
 	res, err := deploiClient.DeployBuild(context.Background(), req)
-	if err := handleGRPCResponse(res, err); err != nil {
-		return fmt.Errorf("Failed to deploy: %s", err)
+	if gErr := handleGRPCResponse(res, err); gErr != nil {
+		return fmt.Errorf("Failed to deploy: %s", gErr)
 	}
 	return nil
 }
@@ -127,8 +127,8 @@ func getNextJobs(env string) ([]*protobuf.Job, error) {
 		Environment: env,
 	}
 	res, err := deploiClient.GetNextJobs(context.Background(), req)
-	if err := handleGRPCResponse(res, err); err != nil {
-		return nil, fmt.Errorf("Failed to get next jobs: %s", err)
+	if gErr := handleGRPCResponse(res, err); gErr != nil {
+		return nil, fmt.Errorf("Failed to get next jobs: %s", gErr)
 	}
 	return res.Jobs, nil
 }
@@ -139,8 +139,43 @@ func markJobAsDone(job *protobuf.Job) error {
 		Job:    job,
 	}
 	res, err := deploiClient.MarkJobDone(context.Background(), req)
-	if err := handleGRPCResponse(res, err); err != nil {
-		return fmt.Errorf("Failed to mark job as done: %s", err)
+	if gErr := handleGRPCResponse(res, err); gErr != nil {
+		return fmt.Errorf("Failed to mark job as done: %s", gErr)
+	}
+	return nil
+}
+
+func createAutomation(a *protobuf.Automation) error {
+	req := &protobuf.RegisterAutomationRequest{
+		Header:     getReqHeader(),
+		Automation: a,
+	}
+	res, err := deploiClient.RegisterAutomation(context.Background(), req)
+	if gErr := handleGRPCResponse(res, err); gErr != nil {
+		return fmt.Errorf("Failed to create automation: %s", gErr)
+	}
+	return nil
+}
+
+func getAutomations() ([]*protobuf.Automation, error) {
+	req := &protobuf.GetAutomationsRequest{
+		Header: getReqHeader(),
+	}
+	res, err := deploiClient.GetAutomations(context.Background(), req)
+	if gErr := handleGRPCResponse(res, err); gErr != nil {
+		return nil, fmt.Errorf("Failed to get automations: %s", gErr)
+	}
+	return res.Automations, nil
+}
+
+func deleteAutomation(id string) error {
+	req := &protobuf.DeleteAutomationRequest{
+		Header: getReqHeader(),
+		Id:     id,
+	}
+	res, err := deploiClient.DeleteAutomation(context.Background(), req)
+	if gErr := handleGRPCResponse(res, err); gErr != nil {
+		return fmt.Errorf("Failed to delete automation: %s", gErr)
 	}
 	return nil
 }

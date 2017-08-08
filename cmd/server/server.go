@@ -43,6 +43,27 @@ func (s *server) RegisterNewBuild(ctx context.Context, req *protobuf.NewBuildReq
 		if err := storeProject(b, proj); err != nil {
 			return err
 		}
+		ab := tx.Bucket(AutomationBucket)
+		automations, err := getAutomations(ab)
+		if err != nil {
+			return fmt.Errorf("Failed to load automations: %s", err)
+		}
+		for _, a := range automations {
+			ba := a.GetBranchAutomation()
+			if ba == nil {
+				continue
+			}
+			if ba.Project == req.Build.ProjectName && ba.Branch == req.Build.BranchName {
+				job := &protobuf.Job{
+					Id:          uuid.NewV4().String(),
+					Build:       proj.Builds[len(proj.Builds)-1],
+					Environment: ba.Environment,
+				}
+				if err := storePendingJob(tx.Bucket(JobBucket), job); err != nil {
+					return fmt.Errorf("Failed to store new job created by automation: %s", err)
+				}
+			}
+		}
 		return nil
 	})
 	if err != nil {
