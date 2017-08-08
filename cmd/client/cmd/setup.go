@@ -67,7 +67,7 @@ var setupUserCmd = &cobra.Command{
 			Password: pw,
 		}
 		res, err := DeploiClient.CreateUser(context.Background(), req)
-		handleGRPCFeedback(err, res.Header)
+		handleGRPCResponse(res, err)
 	},
 }
 

@@ -14,9 +14,11 @@ var (
 )
 
 type Configuration struct {
-	Location string
-	Host     string
-	Token    string
+	Location       string
+	Host           string
+	DialSecurely   bool
+	TLSCertificate string
+	Token          string
 }
 
 func NewConfig() *Configuration {

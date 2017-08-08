@@ -24,7 +24,7 @@ var automationListCmd = &cobra.Command{
 			Header: &protobuf.RequestHeader{},
 		}
 		res, err := DeploiClient.GetAutomations(context.Background(), req)
-		handleGRPCFeedback(err, res.Header)
+		handleGRPCResponse(res, err)
 		w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
 		fmt.Fprintln(w, "ID\tPROJECT\tENVIRONMENT\tNAMESPACE\tTYPE\tDETAILS")
 		for _, a := range res.Automations {
@@ -85,7 +85,7 @@ Currently the following automations are supported:
 				},
 			}
 			res, err := DeploiClient.RegisterAutomation(context.Background(), req)
-			handleGRPCFeedback(err, res.Header)
+			handleGRPCResponse(res, err)
 		default:
 			fmt.Printf("The supplied automation type '%s' is not supported.", args[0])
 			os.Exit(1)
@@ -102,7 +102,7 @@ var automationDeleteCmd = &cobra.Command{
 			Id:     args[0],
 		}
 		res, err := DeploiClient.DeleteAutomation(context.Background(), req)
-		handleGRPCFeedback(err, res.Header)
+		handleGRPCResponse(res, err)
 	},
 }
 

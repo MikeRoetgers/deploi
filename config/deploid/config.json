@@ -1,5 +1,10 @@
 {
   "listen": ":8000",
+  "listenSecurely": true,
+  "TLS": {
+    "certFile": "/etc/deploid/server.crt",
+    "keyFile": "/etc/deploid/server.key"
+  },
   "database": {
     "path": "/var/lib/deploid/deploid.db"
   },

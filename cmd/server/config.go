@@ -9,9 +9,11 @@ import (
 )
 
 type Config struct {
-	ListenAddr string
-	Database   *DatabaseConfig
-	Retention  *RetentionConfig
+	ListenAddr     string
+	ListenSecurely bool
+	TLS            *TLSConfig
+	Database       *DatabaseConfig
+	Retention      *RetentionConfig
 }
 
 type DatabaseConfig struct {
@@ -24,9 +26,15 @@ type RetentionConfig struct {
 	BuildsPerProject map[string]int
 }
 
+type TLSConfig struct {
+	CertFile string
+	KeyFile  string
+}
+
 func newConfig() *Config {
 	return &Config{
-		ListenAddr: ":8000",
+		ListenAddr:     ":8000",
+		ListenSecurely: false,
 		Database: &DatabaseConfig{
 			Path: "/var/lib/deploid/deploid.db",
 		},
@@ -44,7 +52,7 @@ func newConfigFromFile(path string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to open config file: %s", err)
 	}
-	var fileConf *Config
+	fileConf := &Config{}
 	if err = json.NewDecoder(file).Decode(fileConf); err != nil {
 		return nil, fmt.Errorf("Failed to parse config file: %s", err)
 	}

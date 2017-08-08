@@ -42,7 +42,7 @@ The username is typically your email address.`,
 			Password: pw,
 		}
 		res, err := DeploiClient.Login(context.Background(), req)
-		handleGRPCFeedback(err, res.Header)
+		handleGRPCResponse(res, err)
 		config.DeploiConfiguration.Token = res.Token
 		if err := config.WriteConfig(config.DeploiConfiguration); err != nil {
 			log.Fatal(err)
@@ -92,17 +92,19 @@ func initConfig() {
 	*/
 }
 
-func handleGRPCFeedback(err error, header *protobuf.ResponseHeader) {
+func handleGRPCResponse(res interface{}, err error) {
 	if err != nil {
 		fmt.Printf("RPC request failed: %s", err)
 		os.Exit(1)
 	}
-	if !header.Success {
-		fmt.Println("Request was unsuccessful")
-		for _, er := range header.Errors {
-			fmt.Printf("Code: %s | Message: %s\n", er.Code, er.Message)
+	if resp, ok := res.(protobuf.Response); ok {
+		header := resp.GetHeader()
+		if !header.Success {
+			for _, er := range header.Errors {
+				fmt.Printf("Code: %s | Message: %s\n", er.Code, er.Message)
+			}
+			os.Exit(1)
 		}
-		os.Exit(1)
 	}
 }
 

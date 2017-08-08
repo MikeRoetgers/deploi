@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 
 	"github.com/MikeRoetgers/deploi/protobuf"
 	"github.com/boltdb/bolt"
@@ -64,7 +65,18 @@ func main() {
 		log.Fatalf("Failed to start daemon. Reason: %v", err)
 	}
 	go enforceRetention(db)
-	grpcServer := grpc.NewServer()
+
+	var grpcServer *grpc.Server
+
+	if config.ListenSecurely {
+		creds, err := credentials.NewServerTLSFromFile(config.TLS.CertFile, config.TLS.KeyFile)
+		if err != nil {
+			log.Fatalf("Failed to start deamon. TLS Setup failed. Reason: %s", err)
+		}
+		grpcServer = grpc.NewServer(grpc.Creds(creds))
+	} else {
+		grpcServer = grpc.NewServer()
+	}
 	protobuf.RegisterDeploiServerServer(grpcServer, s)
 	grpcServer.Serve(lis)
 }
