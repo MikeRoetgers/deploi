@@ -483,10 +483,12 @@ func (s *server) CreateUser(ctx context.Context, req *protobuf.CreateUserRequest
 			Success: true,
 		},
 	}
-	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
-		addErrors(res.Header, []*protobuf.Error{pbErr})
-		return res, nil
-	}
+	/*
+		if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
+			addErrors(res.Header, []*protobuf.Error{pbErr})
+			return res, nil
+		}
+	*/
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), 10)
 	if err != nil {
 		log.Errorf("Failed to hash password: %s", err)
