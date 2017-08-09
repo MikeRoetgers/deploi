@@ -1,10 +1,12 @@
 # deploi
 
+[![Build Status](https://travis-ci.org/MikeRoetgers/deploi.svg?branch=master)](https://travis-ci.org/MikeRoetgers/deploi)
+
 deploi is a tool that manages the deployment of build artifacts into different cluster environments.
 
 ## Basic Operation
 
-deploi consist of three parts: The deploid daemon, a number of agents and a client, that is used by your CI system as well as humans to interact with deploid.
+deploi consist of three parts: The **deploid** daemon, a number of **agents** and a **client**, that is used by your CI system as well as humans to interact with deploid.
 
 ### deploid
 
