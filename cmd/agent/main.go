@@ -1,36 +1,22 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/MikeRoetgers/deploi/protobuf"
 	logging "github.com/op/go-logging"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
-var environment = flag.String("environment", "", "Name of the environment")
-var deploidHost = flag.String("host", "127.0.0.1:8000", "host:port of the deploid")
-var executor = flag.String("executor", "kubectl", "Configures how the agent communicates with the cluster")
-var namespaces []string
 var log = logging.MustGetLogger("app")
 
-func init() {
-	ns := flag.String("namespaces", "", "Comma-separated list of namespaces in the environment")
-	namespaces = strings.Split(*ns, ",")
-}
-
 func main() {
-	flag.Parse()
-	if *environment == "" {
-		fmt.Printf("An environment name has to be provided\n\n")
-		flag.PrintDefaults()
-		os.Exit(1)
-	}
-	grpcConn, err := grpc.Dial(*deploidHost, grpc.WithInsecure())
+	setupConfig()
+
+	grpcConn, err := grpc.Dial(viper.GetString("deploidHost"), grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -38,7 +24,7 @@ func main() {
 	defer grpcConn.Close()
 	deploiClient := protobuf.NewDeploiServerClient(grpcConn)
 	var je JobExecutor
-	switch *executor {
+	switch viper.GetString("jobs.executor") {
 	case "kubectl":
 		je = &kubectlExecutor{}
 	}
@@ -55,6 +41,29 @@ func main() {
 				}
 			}
 		}
-		time.Sleep(10 * time.Second)
+		time.Sleep(time.Duration(viper.GetInt("jobs.checkInterval")) * time.Second)
+	}
+}
+
+func setupConfig() {
+	viper.SetConfigName("agent")
+	viper.SetDefault("TLS.useTLS", false)
+	viper.SetDefault("jobs.checkInterval", 10)
+	if err := viper.BindEnv("DEPLOI_AGENT_CONFIG_PATH"); err != nil {
+		fmt.Printf("Failed to handle environment variable: %s", err)
+		os.Exit(1)
+	}
+	configPath := viper.GetString("DEPLOI_AGENT_CONFIG_PATH")
+	if configPath != "" {
+		viper.AddConfigPath(configPath)
+	}
+	viper.AddConfigPath("/etc/deploi-agent")
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Printf("Failed to read config: %s", err)
+		os.Exit(1)
+	}
+	if viper.GetString("environment") == "" {
+		fmt.Println("The 'environment' setting is required to be present in the configuration file.")
+		os.Exit(1)
 	}
 }

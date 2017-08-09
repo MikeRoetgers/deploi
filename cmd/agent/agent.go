@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/MikeRoetgers/deploi/protobuf"
+	"github.com/spf13/viper"
 )
 
 type agent struct {
@@ -45,7 +46,7 @@ func (a *agent) processJob(job *protobuf.Job) error {
 func (a *agent) fetchJobs() ([]*protobuf.Job, error) {
 	req := &protobuf.NextJobRequest{
 		Header:      &protobuf.RequestHeader{},
-		Environment: *environment,
+		Environment: viper.GetString("environment"),
 	}
 	res, err := a.deploiClient.GetNextJobs(context.Background(), req)
 	if err != nil {

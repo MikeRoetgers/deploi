@@ -1,0 +1,13 @@
+{
+  "environment": "staging",
+  "namespaces": ["default"],
+  "deploidHost": "localhost:3375",
+  "TLS": {
+    "useTLS": false,
+    "certFile": ""
+  },
+  "jobs": {
+    "executor": "kubectl",
+    "checkInterval": 10
+  }
+}
