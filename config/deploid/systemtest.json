@@ -1,0 +1,7 @@
+{
+  "listen": ":8000",
+  "listenSecurely": false,
+  "database": {
+    "path": "/tmp/{{REPLACEME}}.db"
+  }
+}
