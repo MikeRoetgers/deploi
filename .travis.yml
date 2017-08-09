@@ -4,7 +4,7 @@ go:
   - 1.7
 
 install:
-  - go build -o deploid ./cmd/server
+  - GOOS=linux GOARCH=amd64 go build -o deploid ./cmd/server
 
 before_script:
   - UUID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1); sed -i -e
@@ -16,8 +16,10 @@ script:
   - go test ./tests -v -system
 
 before_deploy:
-  - go build -o deploi-agent ./cmd/agent
-  - go build -o deploi ./cmd/client
+  - mv deploid deploid-linux-amd64
+  - GOOS=linux GOARCH=amd64 go build -o deploi-agent-linux-amd64 ./cmd/agent
+  - GOOS=linux GOARCH=amd64 go build -o deploi-linux-amd64 ./cmd/client
+  - GOOS=darwin GOARCH=amd64 go build -o deploi-darwin-amd64 ./cmd/client
 
 deploy:
   provider: releases
@@ -25,9 +27,10 @@ deploy:
   api_key:
     secure: ozzjVu8VJ9yX4JdZYHMGVVjKRTO4TS5tC24ioH2tW4cB2LZE8WXuudQawiWCy4d6iW+beyyT58NbHP30eseBcSuHZhE1hzUD/04D2QUUW7MUaNom0WqhWDaJKGILU50+urOMeJ95OLa2o5PaOb4DXJ8Vo61iRw7xOW3oXpEf/JiI45Ct2SQIY+xhdy6gqaH3rEIAe3UT7JNk4rKOh0PXZSRY+96Ah0T1G23voAT49epyf8LMz7ygdaQYIb1dfr+HBe/gI0V0vu93GiF00lL9T+owqG+PFcTeP7t3AIteK8T4t3MsAJleFMlM6Zoobx0tdI++dhiBhBZYqQyxv9PhHUp6rjrEIm27mbiEk+y/dwjUdrwzyDCpx9PyPVrqyK6dhxbVw1s2d6oe7+eVhq+mr1IGw8xtXQcN0JxgMqqgWCEaohJqiwaespSB9jGaeTaHwD0jHR8z47y0SIMv0TnEQWlJpYRhsKyUDARIiuqlrpX41DiE/WCaD9YJmKASRE1Dk8UZTLaGN4dw+hmosXU6vkOaK+Bn3DT/qePll+uM70xYOJ7to3U/FB2qu/kbXxOMoT0DYpRQSAhtPgzlWn9qlN6xWOPZUJEoKaJkcB8xsbIh2Cu+4KVqYs1yknoU3m2XS9sFhJBQloWWJMLrHS7zovHHqUBbR9LD8W37//GJMdY=
   file:
-    - deploid
-    - deploi-agent
-    - deploi
+    - deploid-linux-amd64
+    - deploi-agent-linux-amd64
+    - deploi-linux-amd64
+    - deploi-darwin-amd64
   skip_cleanup: true
   on:
     tags: true
