@@ -57,3 +57,21 @@ func (a *agent) fetchJobs() ([]*protobuf.Job, error) {
 	}
 	return res.Jobs, nil
 }
+
+func (a *agent) validateEnvironment() error {
+	req := &protobuf.ValidateEnvironmentRequest{
+		Header: &protobuf.RequestHeader{},
+		Environment: &protobuf.Environment{
+			Name:       viper.GetString("environment"),
+			Namespaces: viper.GetStringSlice("namespaces"),
+		},
+	}
+	res, err := a.deploiClient.ValidateEnvironment(context.Background(), req)
+	if err != nil {
+		return err
+	}
+	if !res.Header.Success {
+		return newResponseError(res.Header)
+	}
+	return nil
+}

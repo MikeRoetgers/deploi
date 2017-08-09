@@ -18,6 +18,12 @@ service DeploiServer {
   rpc GetJobs(GetJobsRequest) returns (GetJobsResponse) {}
   rpc Login(LoginRequest) returns (LoginResponse) {}
   rpc CreateUser(CreateUserRequest) returns (StandardResponse) {}
+  rpc ValidateEnvironment(ValidateEnvironmentRequest) returns (StandardResponse) {}
+}
+
+message ValidateEnvironmentRequest {
+  RequestHeader header = 1;
+  Environment environment = 2;
 }
 
 message CreateUserRequest {

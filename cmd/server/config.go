@@ -9,11 +9,12 @@ import (
 )
 
 type Config struct {
-	ListenAddr     string
-	ListenSecurely bool
-	TLS            *TLSConfig
-	Database       *DatabaseConfig
-	Retention      *RetentionConfig
+	ListenAddr         string
+	ListenSecurely     bool
+	TLS                *TLSConfig
+	Database           *DatabaseConfig
+	Retention          *RetentionConfig
+	CreateEnvsOnDemand bool
 }
 
 type DatabaseConfig struct {
@@ -43,6 +44,7 @@ func newConfig() *Config {
 			Builds:           50,
 			BuildsPerProject: map[string]int{},
 		},
+		CreateEnvsOnDemand: false,
 	}
 }
 

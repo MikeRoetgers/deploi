@@ -40,6 +40,10 @@ func main() {
 		je = &kubectlExecutor{}
 	}
 	a := newAgent(deploiClient, je)
+	if err := a.validateEnvironment(); err != nil {
+		fmt.Printf("Failed to validate environment with deploid: %s", err)
+		os.Exit(1)
+	}
 	for {
 		jobs, err := a.fetchJobs()
 		if err != nil {

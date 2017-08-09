@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -33,7 +34,7 @@ func (s *server) RegisterNewBuild(ctx context.Context, req *protobuf.NewBuildReq
 		},
 	}
 	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
-		addErrors(res.Header, []*protobuf.Error{pbErr})
+		addErrors(res.Header, pbErr)
 		return res, nil
 	}
 	err := s.db.Update(func(tx *bolt.Tx) error {
@@ -82,7 +83,7 @@ func (s *server) GetNextJobs(ctx context.Context, req *protobuf.NextJobRequest) 
 		Jobs: []*protobuf.Job{},
 	}
 	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
-		addErrors(res.Header, []*protobuf.Error{pbErr})
+		addErrors(res.Header, pbErr)
 		return res, nil
 	}
 	err := s.db.View(func(tx *bolt.Tx) error {
@@ -112,7 +113,7 @@ func (s *server) MarkJobDone(ctx context.Context, req *protobuf.JobDoneRequest) 
 		},
 	}
 	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
-		addErrors(res.Header, []*protobuf.Error{pbErr})
+		addErrors(res.Header, pbErr)
 		return res, nil
 	}
 	err := s.db.Update(func(tx *bolt.Tx) error {
@@ -153,7 +154,7 @@ func (s *server) GetProjects(ctx context.Context, req *protobuf.StandardRequest)
 		Projects: []string{},
 	}
 	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
-		addErrors(res.Header, []*protobuf.Error{pbErr})
+		addErrors(res.Header, pbErr)
 		return res, nil
 	}
 	err := s.db.View(func(tx *bolt.Tx) error {
@@ -183,7 +184,7 @@ func (s *server) GetBuilds(ctx context.Context, req *protobuf.GetBuildsRequest) 
 		Builds: []*protobuf.Build{},
 	}
 	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
-		addErrors(res.Header, []*protobuf.Error{pbErr})
+		addErrors(res.Header, pbErr)
 		return res, nil
 	}
 	err := s.db.View(func(tx *bolt.Tx) error {
@@ -207,7 +208,7 @@ func (s *server) DeployBuild(ctx context.Context, req *protobuf.DeployRequest) (
 		},
 	}
 	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
-		addErrors(res.Header, []*protobuf.Error{pbErr})
+		addErrors(res.Header, pbErr)
 		return res, nil
 	}
 	job := &protobuf.Job{
@@ -283,7 +284,7 @@ func (s *server) RegisterAutomation(ctx context.Context, req *protobuf.RegisterA
 		},
 	}
 	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
-		addErrors(res.Header, []*protobuf.Error{pbErr})
+		addErrors(res.Header, pbErr)
 		return res, nil
 	}
 	automation := req.Automation
@@ -309,7 +310,7 @@ func (s *server) DeleteAutomation(ctx context.Context, req *protobuf.DeleteAutom
 		},
 	}
 	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
-		addErrors(res.Header, []*protobuf.Error{pbErr})
+		addErrors(res.Header, pbErr)
 		return res, nil
 	}
 	err := s.db.Update(func(tx *bolt.Tx) error {
@@ -338,7 +339,7 @@ func (s *server) GetAutomations(ctx context.Context, req *protobuf.GetAutomation
 		},
 	}
 	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
-		addErrors(res.Header, []*protobuf.Error{pbErr})
+		addErrors(res.Header, pbErr)
 		return res, nil
 	}
 	err := s.db.View(func(tx *bolt.Tx) error {
@@ -365,7 +366,7 @@ func (s *server) RegisterEnvironment(ctx context.Context, req *protobuf.Register
 		},
 	}
 	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
-		addErrors(res.Header, []*protobuf.Error{pbErr})
+		addErrors(res.Header, pbErr)
 		return res, nil
 	}
 	err := s.db.Update(func(tx *bolt.Tx) error {
@@ -393,7 +394,7 @@ func (s *server) GetEnvironments(ctx context.Context, req *protobuf.StandardRequ
 		Environments: []*protobuf.Environment{},
 	}
 	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
-		addErrors(res.Header, []*protobuf.Error{pbErr})
+		addErrors(res.Header, pbErr)
 		return res, nil
 	}
 	err := s.db.View(func(tx *bolt.Tx) error {
@@ -423,7 +424,7 @@ func (s *server) DeleteEnvironment(ctx context.Context, req *protobuf.DeleteEnvi
 		},
 	}
 	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
-		addErrors(res.Header, []*protobuf.Error{pbErr})
+		addErrors(res.Header, pbErr)
 		return res, nil
 	}
 	err := s.db.Update(func(tx *bolt.Tx) error {
@@ -464,7 +465,7 @@ func (s *server) GetJobs(ctx context.Context, req *protobuf.GetJobsRequest) (*pr
 		},
 	}
 	if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
-		addErrors(res.Header, []*protobuf.Error{pbErr})
+		addErrors(res.Header, pbErr)
 		return res, nil
 	}
 	err := s.db.View(func(tx *bolt.Tx) error {
@@ -506,7 +507,7 @@ func (s *server) CreateUser(ctx context.Context, req *protobuf.CreateUserRequest
 	}
 	/*
 		if _, pbErr := checkAuthentication(req.Header); pbErr != nil {
-			addErrors(res.Header, []*protobuf.Error{pbErr})
+			addErrors(res.Header, pbErr)
 			return res, nil
 		}
 	*/
@@ -575,22 +576,82 @@ func (s *server) Login(ctx context.Context, req *protobuf.LoginRequest) (*protob
 	return res, nil
 }
 
-func addError(header *protobuf.ResponseHeader, code, message string) {
-	header.Success = false
-	header.Errors = append(header.Errors, &protobuf.Error{
+func (s *server) ValidateEnvironment(ctx context.Context, req *protobuf.ValidateEnvironmentRequest) (*protobuf.StandardResponse, error) {
+	res := &protobuf.StandardResponse{
+		Header: &protobuf.ResponseHeader{
+			Success: true,
+		},
+	}
+
+	var env *protobuf.Environment
+	s.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket(EnvironmentBucket)
+		env = getEnvironment(b, req.Environment.Name)
+		return nil
+	})
+
+	// environment exists, add eventually missing
+	if env != nil {
+		diff := compareNamespaces(env, req.Environment)
+		if len(diff) == 0 {
+			return res, nil
+		}
+		if !config.CreateEnvsOnDemand {
+			addError(res.Header, "UNKNOWN_NAMESPACE", fmt.Sprintf("One or more namespaces are not registered in deploid: %s", strings.Join(diff, ", ")))
+			return res, nil
+		}
+		if err := s.db.Update(func(tx *bolt.Tx) error {
+			b := tx.Bucket(EnvironmentBucket)
+			env.Namespaces = append(env.Namespaces, diff...)
+			if err := storeEnvironment(b, env); err != nil {
+				return err
+			}
+			return nil
+		}); err != nil {
+			log.Errorf("Failed to update environment namespaces: %s", err)
+			addInternalError(res.Header)
+			return res, nil
+		}
+		return res, nil
+	}
+	if !config.CreateEnvsOnDemand {
+		addError(res.Header, "UNKNOWN_ENVIRONMENT", fmt.Sprintf("The provided environment is not registered in deploid: %s", req.Environment.Name))
+		return res, nil
+	}
+	if err := s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(EnvironmentBucket)
+		if err := storeEnvironment(b, req.Environment); err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
+		log.Errorf("Failed to store environment: %s", err)
+		addInternalError(res.Header)
+		return res, nil
+	}
+	return res, nil
+}
+
+func addError(res interface{}, code, message string) {
+	addErrors(res, &protobuf.Error{
 		Code:    code,
 		Message: message,
 	})
 }
 
-func addErrors(header *protobuf.ResponseHeader, errs []*protobuf.Error) {
-	header.Success = false
-	header.Errors = append(header.Errors, errs...)
+func addErrors(res interface{}, errs ...*protobuf.Error) {
+	switch v := res.(type) {
+	case *protobuf.ResponseHeader:
+		v.Success = false
+		v.Errors = append(v.Errors, errs...)
+	case protobuf.Response:
+		v.GetHeader().Success = false
+		v.GetHeader().Errors = append(v.GetHeader().Errors, errs...)
+	}
 }
 
-func addInternalError(header *protobuf.ResponseHeader) {
-	header.Success = false
-	header.Errors = append(header.Errors, &protobuf.Error{
+func addInternalError(res interface{}) {
+	addErrors(res, &protobuf.Error{
 		Code:    "INTERNAL_ERROR",
 		Message: "An internal server error occured",
 	})

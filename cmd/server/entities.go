@@ -85,6 +85,17 @@ func environmentHasNamespace(env *protobuf.Environment, namespace string) bool {
 	return false
 }
 
+// Returns list of namespaces present in env2 and missing in env1
+func compareNamespaces(env1, env2 *protobuf.Environment) []string {
+	diff := []string{}
+	for _, n := range env2.Namespaces {
+		if !environmentHasNamespace(env1, n) {
+			diff = append(diff, n)
+		}
+	}
+	return diff
+}
+
 // Uses a different key pattern (env_jobid) to make the bucket easily searchable
 func storePendingJob(bucket *bolt.Bucket, job *protobuf.Job) error {
 	val, err := proto.Marshal(job)
