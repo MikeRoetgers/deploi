@@ -9,14 +9,25 @@ import (
 	logging "github.com/op/go-logging"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 var log = logging.MustGetLogger("app")
 
 func main() {
 	setupConfig()
-
-	grpcConn, err := grpc.Dial(viper.GetString("deploidHost"), grpc.WithInsecure())
+	options := []grpc.DialOption{}
+	if viper.GetBool("TLS.useTLS") {
+		creds, err := credentials.NewClientTLSFromFile(viper.GetString("TLS.certFile"), "")
+		if err != nil {
+			fmt.Printf("Failed to read TLS cert file: %s", err)
+			os.Exit(1)
+		}
+		options = append(options, grpc.WithTransportCredentials(creds))
+	} else {
+		options = append(options, grpc.WithInsecure())
+	}
+	grpcConn, err := grpc.Dial(viper.GetString("deploidHost"), options...)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
